@@ -8,6 +8,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RepairHistoryController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,6 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -29,7 +32,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Employees
     Route::resource('employees', EmployeeController::class);
-
+Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+Route::post('employees/quick-store', [EmployeeController::class, 'quickStore'])->name('employees.quick-store');
 
     // Preventive Maintenance
     Route::get('assets/{asset}/maintenance/create', [MaintenanceScheduleController::class, 'create'])->name('maintenance.create');
@@ -38,6 +42,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('maintenance/{schedule}/complete', [MaintenanceScheduleController::class, 'complete'])->name('maintenance.complete');
 
     // Repairs
+
+Route::get('assets/{asset}/repairs/create', [RepairHistoryController::class, 'create'])->name('repairs.create');
     Route::post('assets/{asset}/repairs', [RepairHistoryController::class, 'store'])->name('repairs.store');
     Route::post('repairs/{repair}/complete', [RepairHistoryController::class, 'complete'])->name('repairs.complete');
 

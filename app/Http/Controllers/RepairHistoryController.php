@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\DB;
 
 class RepairHistoryController extends Controller
 {
+    public function create(Asset $asset)
+    {
+        return view('repairs.create', [
+            'asset' => $asset,
+            'technicians' => \App\Models\User::whereIn('role', ['technician', 'admin'])->orderBy('name')->get(),
+        ]);
+    }
+
     public function store(Request $request, Asset $asset)
     {
         $validated = $request->validate([
@@ -69,4 +77,3 @@ class RepairHistoryController extends Controller
         return redirect()->route('assets.show', $repair->asset)->with('success', 'Repair record updated.');
     }
 }
-

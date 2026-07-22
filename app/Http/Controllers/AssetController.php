@@ -85,8 +85,11 @@ class AssetController extends Controller
             'purchase_cost' => 'nullable|numeric|min:0',
             'warranty_expiration' => 'nullable|date|after_or_equal:purchase_date',
             'supplier_id' => 'nullable|exists:suppliers,id',
+            'status' => 'required|in:active,under_repair,for_disposal,lost',
             'notes' => 'nullable|string',
         ]);
+
+        $validated['asset_tag'] = $this->generateAssetTag($validated['category_id']);
 
         $validated['asset_tag'] = $this->generateAssetTag($validated['category_id']);
         $validated['status'] = 'active';

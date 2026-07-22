@@ -1,115 +1,119 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Add Employee — EM Power Beautiful Skin</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-rose-50 text-gray-800 text-sm">
+@extends('layouts.shell')
 
-    <div class="bg-rose-100 border-b border-rose-200 px-6 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold text-xs">EM</div>
-            <div class="leading-tight">
-                <div class="font-semibold text-pink-700 text-sm">EM Power Beautiful Skin</div>
-                <div class="text-[10px] tracking-widest text-gray-400">CORPORATION</div>
-            </div>
+@section('title', 'Add Employee')
+
+@section('content')
+    <div class="flex justify-between items-start mb-6">
+        <div>
+            <h1 class="text-lg font-bold">ADD EMPLOYEE</h1>
+            <p class="text-xs text-gray-400">Employees / Add new employee</p>
         </div>
+        <a href="{{ route('employees.index') }}" class="px-4 py-1.5 bg-pink-500 text-white text-xs font-semibold rounded-full">&#8249; BACK</a>
     </div>
 
-    <div class="flex">
-        <div class="w-48 bg-rose-50 border-r border-rose-200 min-h-screen py-4 px-3 space-y-1">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-rose-100">
-                <span>&#8962;</span> Dashboard
-            </a>
-            <a href="{{ route('assets.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-rose-100">
-                <span>&#128421;</span> Assets
-            </a>
-            <a href="{{ route('employees.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-orange-200 text-gray-800">
-                <span>&#128101;</span> Employees
-            </a>
-            <a href="{{ route('maintenance.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-rose-100">
-                <span>&#9881;</span> Maintenance
-            </a>
-            <a href="{{ route('reports.inventory') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-rose-100">
-                <span>&#128196;</span> Reports
-            </a>
+    @if ($errors->any())
+        <div class="mb-4 p-3 bg-red-100 text-red-800 rounded-md text-xs max-w-2xl">
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
+    @endif
 
-        <div class="flex-1 p-6">
-            <div class="flex justify-between items-start mb-6">
+    <form method="POST" action="{{ route('employees.store') }}" class="max-w-2xl">
+        @csrf
+        <div class="bg-white border border-rose-100 rounded-xl p-5 shadow-sm">
+            <div class="mb-3">
+                <label class="block text-[10px] font-semibold text-gray-500 mb-1">DEPARTMENT</label>
+                <select name="department_id" id="department-select" class="w-full text-xs border-gray-300 rounded-md">
+                    <option value="">Select</option>
+                    @foreach ($departments as $department)
+                        <option value="{{ $department->id }}" @selected(old('department_id') == $department->id)>{{ $department->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                    <h1 class="text-lg font-bold">ADD EMPLOYEE</h1>
-                    <p class="text-xs text-gray-400">Employees / Add new employee</p>
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">FIRST NAME *</label>
+                    <input type="text" name="first_name" value="{{ old('first_name') }}" required class="w-full text-xs border-gray-300 rounded-md">
                 </div>
-                <a href="{{ route('employees.index') }}" class="px-4 py-1.5 bg-pink-500 text-white text-xs font-semibold rounded-full">&#8249; BACK</a>
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">LAST NAME *</label>
+                    <input type="text" name="last_name" value="{{ old('last_name') }}" required class="w-full text-xs border-gray-300 rounded-md">
+                </div>
             </div>
 
-            @if ($errors->any())
-                <div class="mb-4 p-3 bg-red-100 text-red-800 rounded-md text-xs max-w-2xl">
-                    <ul class="list-disc list-inside">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+            <div class="grid grid-cols-2 gap-4 mb-3">
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">EMAIL</label>
+                    <input type="email" name="email" value="{{ old('email') }}" class="w-full text-xs border-gray-300 rounded-md">
                 </div>
-            @endif
-
-            <form method="POST" action="{{ route('employees.store') }}" class="max-w-2xl">
-                @csrf
-                <div class="bg-white border border-rose-100 rounded-xl p-5 shadow-sm">
-                    <div class="grid grid-cols-2 gap-4 mb-3">
-                        <div>
-                            <label class="block text-[10px] font-semibold text-gray-500 mb-1">EMPLOYEE ID</label>
-                            <input type="text" name="employee_id" value="{{ old('employee_id') }}" placeholder="e.g. EMP030" class="w-full text-xs border-gray-300 rounded-md">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-semibold text-gray-500 mb-1">DEPARTMENT</label>
-                            <select name="department_id" class="w-full text-xs border-gray-300 rounded-md">
-                                <option value="">Select</option>
-                                @foreach ($departments as $department)
-                                    <option value="{{ $department->id }}" @selected(old('department_id') == $department->id)>{{ $department->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4 mb-3">
-                        <div>
-                            <label class="block text-[10px] font-semibold text-gray-500 mb-1">FIRST NAME *</label>
-                            <input type="text" name="first_name" value="{{ old('first_name') }}" required class="w-full text-xs border-gray-300 rounded-md">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-semibold text-gray-500 mb-1">LAST NAME *</label>
-                            <input type="text" name="last_name" value="{{ old('last_name') }}" required class="w-full text-xs border-gray-300 rounded-md">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4 mb-3">
-                        <div>
-                            <label class="block text-[10px] font-semibold text-gray-500 mb-1">EMAIL</label>
-                            <input type="email" name="email" value="{{ old('email') }}" class="w-full text-xs border-gray-300 rounded-md">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-semibold text-gray-500 mb-1">PHONE</label>
-                            <input type="text" name="phone" value="{{ old('phone') }}" placeholder="e.g. 0935-456-1236" class="w-full text-xs border-gray-300 rounded-md">
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-[10px] font-semibold text-gray-500 mb-1">POSITION</label>
-                        <input type="text" name="position" value="{{ old('position') }}" placeholder="e.g. IT Support" class="w-full text-xs border-gray-300 rounded-md">
-                    </div>
-
-                    <div class="text-right">
-                        <button type="submit" class="px-6 py-2 bg-pink-600 text-white text-xs font-semibold rounded-full hover:bg-pink-700">
-                            SAVE EMPLOYEE
-                        </button>
-                    </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">PHONE</label>
+                    <input type="text" name="phone" value="{{ old('phone') }}" placeholder="e.g. 0935-456-1236" class="w-full text-xs border-gray-300 rounded-md">
                 </div>
-            </form>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-[10px] font-semibold text-gray-500 mb-1">POSITION</label>
+                <select name="position" id="position-select" class="w-full text-xs border-gray-300 rounded-md">
+                    <option value="">Select department first</option>
+                </select>
+            </div>
+
+            <div class="text-right">
+                <button type="submit" class="px-6 py-2 bg-pink-600 text-white text-xs font-semibold rounded-full hover:bg-pink-700">
+                    SAVE EMPLOYEE
+                </button>
+            </div>
         </div>
-    </div>
-</body>
-</html>
+    </form>
+@endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const positionsByDept = @json(
+        $positions->groupBy('department_id')->map(fn ($group) => $group->pluck('title', 'id'))
+    );
+
+    const deptSelect = document.getElementById('department-select');
+    const posSelect = document.getElementById('position-select');
+    const oldPosition = @json(old('position'));
+
+    function populatePositions(deptId, selected = '') {
+        posSelect.innerHTML = '';
+
+        const options = positionsByDept[deptId];
+
+        if (!options) {
+            posSelect.innerHTML = '<option value="">Select department first</option>';
+            return;
+        }
+
+        const blank = document.createElement('option');
+        blank.value = '';
+        blank.textContent = 'Select position';
+        posSelect.appendChild(blank);
+
+        Object.values(options).forEach(title => {
+            const opt = document.createElement('option');
+            opt.value = title;
+            opt.textContent = title;
+            if (title === selected) opt.selected = true;
+            posSelect.appendChild(opt);
+        });
+    }
+
+    deptSelect.addEventListener('change', function () {
+        populatePositions(this.value);
+    });
+
+    if (deptSelect.value) {
+        populatePositions(deptSelect.value, oldPosition);
+    }
+});
+</script>
+@endpush

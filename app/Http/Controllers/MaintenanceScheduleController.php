@@ -26,7 +26,10 @@ class MaintenanceScheduleController extends Controller
 
     public function create(Asset $asset)
     {
-        return view('maintenance.create', compact('asset'));
+        return view('maintenance.create', [
+           'asset' => $asset,
+           'technicians' => \App\Models\User::whereIn('role', ['technician', 'admin'])->orderBy('name')->get()
+] );
     }
 
     public function store(Request $request, Asset $asset)
