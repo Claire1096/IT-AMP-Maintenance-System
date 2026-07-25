@@ -150,6 +150,30 @@
         <option value="__new__">+ Add New Employee...</option>
     </select>
 </div>
+<div class="grid grid-cols-2 gap-3 mb-3">
+    <div>
+        <label class="block text-[10px] font-semibold text-gray-500 mb-1">DEPARTMENT</label>
+        <select name="department_id" class="w-full text-xs border-gray-300 rounded-md">
+            <option value="">Select</option>
+            @foreach ($departments as $department)
+                <option value="{{ $department->id }}" @selected(old('department_id') == $department->id)>
+                    {{ $department->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+    <div>
+        <label class="block text-[10px] font-semibold text-gray-500 mb-1">LOCATION</label>
+        <select name="location_id" class="w-full text-xs border-gray-300 rounded-md">
+            <option value="">Select</option>
+            @foreach ($locations as $location)
+                <option value="{{ $location->id }}" @selected(old('location_id') == $location->id)>
+                    {{ $location->name }}{{ $location->building ? ' — ' . $location->building->name : '' }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+</div>
 
           
 

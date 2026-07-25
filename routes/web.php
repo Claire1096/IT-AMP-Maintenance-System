@@ -42,8 +42,8 @@ Route::post('employees/{employee}/assign-asset', [EmployeeController::class, 'as
 Route::post('employees/quick-store', [EmployeeController::class, 'quickStore'])->name('employees.quick-store');
 
     // Preventive Maintenance
-    Route::get('assets/{asset}/maintenance/create', [MaintenanceScheduleController::class, 'create'])->name('maintenance.create');
-    Route::post('assets/{asset}/maintenance', [MaintenanceScheduleController::class, 'store'])->name('maintenance.store');
+    Route::get('facility-maintenance/create', [FacilityMaintenanceController::class, 'create'])->name('facility-maintenance.create');
+    Route::post('facility-maintenance', [FacilityMaintenanceController::class, 'store'])->name('facility-maintenance.store');
     Route::get('maintenance', [MaintenanceScheduleController::class, 'index'])->name('maintenance.index');
     Route::post('maintenance/{schedule}/complete', [MaintenanceScheduleController::class, 'complete'])->name('maintenance.complete');
 Route::get('facility-items/{facilityItem}/maintenance/create', [FacilityMaintenanceController::class, 'create'])->name('facility-maintenance.create');

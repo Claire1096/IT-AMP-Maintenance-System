@@ -8,7 +8,10 @@
             <h1 class="text-lg font-bold">MAINTENANCE SCHEDULE</h1>
             <p class="text-xs text-gray-400">Asset Management / Preventive maintenance tracking</p>
         </div>
-        <a href="{{ route('facility-items.index') }}" class="px-4 py-1.5 bg-pink-500 text-white text-xs font-semibold rounded-full">&#8249; BACK TO ASSETS</a>
+        <div class="flex gap-2">
+            <a href="{{ route('facility-items.index') }}" class="px-4 py-1.5 border border-gray-300 text-gray-600 text-xs font-semibold rounded-full">&#8249; BACK TO ASSETS</a>
+            <a href="{{ route('facility-maintenance.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ SCHEDULE MAINTENANCE</a>
+        </div>
     </div>
 
     @if (session('success'))

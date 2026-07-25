@@ -15,29 +15,28 @@
         <div class="mb-4 p-3 bg-green-100 text-green-800 rounded-md text-xs">{{ session('success') }}</div>
     @endif
 
-  <div class="grid grid-cols-3 gap-4 mb-6">
-    <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-        <div class="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center text-lg">&#128230;</div>
-        <div>
-            <div class="text-[10px] font-semibold text-gray-500 uppercase">Total</div>
-            <div class="text-xl font-bold">{{ $stats['total'] }}</div>
+    <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
+            <div class="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center text-lg">&#128230;</div>
+            <div>
+                <div class="text-[10px] font-semibold text-gray-500 uppercase">Total</div>
+                <div class="text-xl font-bold">{{ $stats['total'] }}</div>
+            </div>
         </div>
-    </div>
-    <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-        <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-lg">&#9989;</div>
-        <div>
-            <div class="text-[10px] font-semibold text-gray-500 uppercase">In Use</div>
-            <div class="text-xl font-bold">{{ $stats['in_use'] }}</div>
+        <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
+            <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-lg">&#9989;</div>
+            <div>
+                <div class="text-[10px] font-semibold text-gray-500 uppercase">In Use</div>
+                <div class="text-xl font-bold">{{ $stats['in_use'] }}</div>
+            </div>
         </div>
-    </div>
-    <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-        <div class="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center text-lg">&#128230;</div>
-        <div>
-            <div class="text-[10px] font-semibold text-gray-500 uppercase">In Storage</div>
-            <div class="text-xl font-bold">{{ $stats['in_storage'] }}</div>
+        <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
+            <div class="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center text-lg">&#128230;</div>
+            <div>
+                <div class="text-[10px] font-semibold text-gray-500 uppercase">In Storage</div>
+                <div class="text-xl font-bold">{{ $stats['in_storage'] }}</div>
+            </div>
         </div>
-    </div>
-</div>
         <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
             <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center text-lg">&#9888;</div>
             <div>
@@ -157,76 +156,4 @@
     <div class="mt-4">
         {{ $items->withQueryString()->links() }}
     </div>
-
-    @extends('layouts.shell')
-
-@section('title', 'Facility Maintenance')
-
-@section('content')
-    <div class="flex justify-between items-start mb-6">
-        <div>
-            <h1 class="text-lg font-bold">FACILITY MAINTENANCE</h1>
-            <p class="text-xs text-gray-400">Upcoming and overdue maintenance for facility items</p>
-        </div>
-    </div>
-
-    @if (session('success'))
-        <div class="mb-4 p-3 bg-green-100 text-green-800 rounded-md text-xs">{{ session('success') }}</div>
-    @endif
-
-   
-
-    <div class="bg-white border border-rose-100 overflow-hidden shadow-sm rounded-xl">
-        <table class="min-w-full divide-y divide-rose-100 text-xs">
-            <thead class="bg-pink-100">
-                <tr class="text-left font-semibold text-gray-700 uppercase tracking-wider">
-                    <th class="px-4 py-3">Item</th>
-                    <th class="px-4 py-3">Due Date</th>
-                    <th class="px-4 py-3">Status</th>
-                    <th class="px-4 py-3">Notes</th>
-                    <th class="px-4 py-3">Action</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-rose-50">
-                @forelse ($maintenances as $maintenance)
-                    <tr class="hover:bg-rose-50">
-                        <td class="px-4 py-3">
-                            <a href="{{ route('facility-items.show', $maintenance->item) }}" class="text-pink-600 hover:underline">
-                                {{ $maintenance->item->item_tag }} — {{ $maintenance->item->name }}
-                            </a>
-                        </td>
-                        <td class="px-4 py-3">{{ $maintenance->due_date->format('M d, Y') }}</td>
-                        <td class="px-4 py-3">
-                            <span @class([
-                                'px-2 py-1 rounded-full font-semibold text-[10px]',
-                                'bg-yellow-500 text-white' => $maintenance->status === 'pending',
-                                'bg-red-500 text-white' => $maintenance->status === 'overdue',
-                                'bg-green-500 text-white' => $maintenance->status === 'done',
-                            ])>
-                                {{ strtoupper($maintenance->status) }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3">{{ Str::limit($maintenance->notes, 40) ?: '—' }}</td>
-                        <td class="px-4 py-3">
-                            @if ($maintenance->status !== 'done' && auth()->user()->role !== 'executive')
-                                <form method="POST" action="{{ route('facility-maintenance.complete', $maintenance) }}">
-                                    @csrf
-                                    <button class="text-pink-600 hover:underline">Mark Complete</button>
-                                </form>
-                            @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="px-4 py-8 text-center text-gray-400">No maintenance scheduled yet.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    <div class="mt-4">
-        {{ $maintenances->links() }}
-    </div>
-@endsection
 @endsection

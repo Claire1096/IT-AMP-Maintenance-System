@@ -7,6 +7,7 @@ use App\Models\FacilityItem;
 use App\Models\Location;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use App\Models\FacilityMaintenance;
 
 class FacilityItemController extends Controller
 {
@@ -15,36 +16,42 @@ class FacilityItemController extends Controller
     private array $conditions = ['good', 'fair', 'poor'];
 
     public function index(Request $request)
-    {
-        $items = FacilityItem::query()
-            ->with(['department', 'location'])
-            ->when($request->category, fn ($q) => $q->where('category', $request->category))
-            ->when($request->status, fn ($q) => $q->where('status', $request->status))
-            ->when($request->department_id, fn ($q) => $q->where('department_id', $request->department_id))
-            ->when($request->search, function ($q) use ($request) {
-                $q->where(function ($sub) use ($request) {
-                    $sub->where('item_tag', 'like', "%{$request->search}%")
-                        ->orWhere('name', 'like', "%{$request->search}%");
-                });
-            })
-            ->latest()
-            ->paginate(20);
+{
+    $items = FacilityItem::query()
+        ->with(['department', 'location'])
+        ->when($request->category, fn ($q) => $q->where('category', $request->category))
+        ->when($request->status, fn ($q) => $q->where('status', $request->status))
+        ->when($request->department_id, fn ($q) => $q->where('department_id', $request->department_id))
+        ->when($request->search, function ($q) use ($request) {
+            $q->where(function ($sub) use ($request) {
+                $sub->where('item_tag', 'like', "%{$request->search}%")
+                    ->orWhere('name', 'like', "%{$request->search}%");
+            });
+        })
+        ->latest()
+        ->paginate(20);
 
-        $stats = [
-            'total' => FacilityItem::count(),
-            'in_use' => FacilityItem::where('status', 'in_use')->count(),
-            'in_storage' => FacilityItem::where('status', 'in_storage')->count(),
-            'damaged' => FacilityItem::where('status', 'damaged')->count(),
-        ];
+    $stats = [
+        'total' => FacilityItem::count(),
+        'in_use' => FacilityItem::where('status', 'in_use')->count(),
+        'in_storage' => FacilityItem::where('status', 'in_storage')->count(),
+        'damaged' => FacilityItem::where('status', 'damaged')->count(),
+    ];
 
-        return view('facility-items.index', [
-            'items' => $items,
-            'stats' => $stats,
-            'departments' => Department::all(),
-            'categories' => $this->categories,
-            'statuses' => $this->statuses,
-        ]);
-    }
+    $maintenances = FacilityMaintenance::with('item')
+        ->where('status', '!=', 'done')
+        ->orderBy('due_date')
+        ->paginate(10);
+
+    return view('facility-items.index', [
+        'items' => $items,
+        'stats' => $stats,
+        'departments' => Department::all(),
+        'categories' => $this->categories,
+        'statuses' => $this->statuses,
+        'maintenances' => $maintenances,
+    ]);
+}
 
 public function create()
 {

@@ -107,6 +107,18 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="block text-[10px] font-semibold text-gray-500 mb-1">DEPARTMENT</label>
+                        <select name="department_id" class="w-full text-xs border-gray-300 rounded-md">
+                            <option value="">Select Department</option>
+                            @foreach ($departments as $department)
+                                <option value="{{ $department->id }}" @selected(old('department_id') == $department->id)>
+                                    {{ $department->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="block text-[10px] font-semibold text-gray-500 mb-1">BUILDING</label>
                         <select id="building-select" class="w-full text-xs border-gray-300 rounded-md">
                             <option value="">Choose Building</option>
@@ -122,6 +134,7 @@
                             <option value="">Choose building first</option>
                         </select>
                     </div>
+                
 
                     <h3 class="text-xs font-bold text-pink-600 uppercase mb-3">&#128722; Purchase Details</h3>
 
@@ -161,42 +174,61 @@
     </form>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function () {
+    // 1. Pass both 'name' and 'floor' attributes into JS
         const locationsByBuilding = @json(
             $locations->groupBy('building_id')->map(fn ($group) =>
-                $group->pluck('floor', 'id')
-            )
-        );
+                $group->mapWithKeys(function ($location) {
+                    // Combines floor & name if available, e.g. "1st Floor - Corp Store" or just name
+                    $label = $location->name ?? ($location->floor ? "Floor {$location->floor}" : 'Ground Floor');
+                    if ($location->floor && $location->name) {
+                        $label = "{$location->floor} Floor - {$location->name}";
+                    }
+                return [$location->id => $label];
+            })
+        )
+    );
 
-        const buildingSelect = document.getElementById('building-select');
-        const locationSelect = document.getElementById('location-select');
+    const buildingSelect = document.getElementById('building-select');
+    const locationSelect = document.getElementById('location-select');
 
-        function populateLocations(buildingId) {
-            locationSelect.innerHTML = '';
+    function populateLocations(buildingId) {
+        locationSelect.innerHTML = '';
 
-            const options = locationsByBuilding[buildingId];
+        const options = locationsByBuilding[buildingId];
 
-            if (!options) {
-                locationSelect.innerHTML = '<option value="">Choose building first</option>';
-                return;
-            }
-
-            const blank = document.createElement('option');
-            blank.value = '';
-            blank.textContent = 'Choose floor';
-            locationSelect.appendChild(blank);
-
-            Object.entries(options).forEach(([id, floor]) => {
-                const opt = document.createElement('option');
-                opt.value = id;
-                opt.textContent = floor ? `Floor ${floor}` : 'Ground Floor';
-                locationSelect.appendChild(opt);
-            });
+        if (!options || Object.keys(options).length === 0) {
+            locationSelect.innerHTML = '<option value="">Choose building first</option>';
+            return;
         }
 
-        buildingSelect.addEventListener('change', function () {
-            populateLocations(this.value);
+        const blank = document.createElement('option');
+        blank.value = '';
+        blank.textContent = 'Choose location';
+        locationSelect.appendChild(blank);
+
+        Object.entries(options).forEach(([id, locationLabel]) => {
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = locationLabel;
+            
+            // Preserve selected location if form validation reloads (old input)
+            if ("{{ old('location_id') }}" == id) {
+                opt.selected = true;
+            }
+
+            locationSelect.appendChild(opt);
         });
+    }
+
+    // Trigger on load (if old input exists)
+    if (buildingSelect.value) {
+        populateLocations(buildingSelect.value);
+    }
+
+    buildingSelect.addEventListener('change', function () {
+        populateLocations(this.value);
     });
-    </script>
+});
+</script>
 @endsection
