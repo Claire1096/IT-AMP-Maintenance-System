@@ -30,6 +30,12 @@ class Department extends Model
     public function positions()
 {
     return $this->hasMany(Position::class);
+
+}
+
+public function facilityItems()
+{
+    return $this->hasMany(FacilityItem::class);
 }
 }
 

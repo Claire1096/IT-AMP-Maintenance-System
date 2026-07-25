@@ -1,5 +1,6 @@
 
 <?php
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\DashboardController;
@@ -8,8 +9,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RepairHistoryController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SearchController;
+use App\Http\Controllers\FacilityItemController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\FacilityMaintenanceController;
+use App\Http\Controllers\FacilityReportController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+Route::get('search', [SearchController::class, 'index'])->name('search');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -29,10 +34,11 @@ Route::middleware(['auth'])->group(function () {
     // Assets
     Route::resource('assets', AssetController::class);
     Route::post('assets/{asset}/reassign', [AssetController::class, 'reassign'])->name('assets.reassign');
-
+Route::resource('facility-items', FacilityItemController::class);
     // Employees
     Route::resource('employees', EmployeeController::class);
-Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+Route::post('employees/{employee}/assign-asset', [EmployeeController::class, 'assignAsset'])->name('employees.assign-asset');
+
 Route::post('employees/quick-store', [EmployeeController::class, 'quickStore'])->name('employees.quick-store');
 
     // Preventive Maintenance
@@ -40,7 +46,10 @@ Route::post('employees/quick-store', [EmployeeController::class, 'quickStore'])-
     Route::post('assets/{asset}/maintenance', [MaintenanceScheduleController::class, 'store'])->name('maintenance.store');
     Route::get('maintenance', [MaintenanceScheduleController::class, 'index'])->name('maintenance.index');
     Route::post('maintenance/{schedule}/complete', [MaintenanceScheduleController::class, 'complete'])->name('maintenance.complete');
-
+Route::get('facility-items/{facilityItem}/maintenance/create', [FacilityMaintenanceController::class, 'create'])->name('facility-maintenance.create');
+Route::post('facility-items/{facilityItem}/maintenance', [FacilityMaintenanceController::class, 'store'])->name('facility-maintenance.store');
+Route::get('facility-maintenance', [FacilityMaintenanceController::class, 'index'])->name('facility-maintenance.index');
+Route::post('facility-maintenance/{facilityMaintenance}/complete', [FacilityMaintenanceController::class, 'complete'])->name('facility-maintenance.complete');
     // Repairs
 
 Route::get('assets/{asset}/repairs/create', [RepairHistoryController::class, 'create'])->name('repairs.create');
@@ -56,6 +65,13 @@ Route::get('assets/{asset}/repairs/create', [RepairHistoryController::class, 'cr
         Route::get('asset-assignment', [ReportController::class, 'assetAssignment'])->name('asset-assignment');
         Route::get('annual-summary', [ReportController::class, 'annualSummary'])->name('annual-summary');
     });
+
+    Route::prefix('facility-reports')->name('facility-reports.')->group(function () {
+    Route::get('inventory', [FacilityReportController::class, 'inventory'])->name('inventory');
+    Route::get('condition', [FacilityReportController::class, 'condition'])->name('condition');
+    Route::get('department-distribution', [FacilityReportController::class, 'departmentDistribution'])->name('department-distribution');
+    Route::get('maintenance-due', [FacilityReportController::class, 'maintenanceDue'])->name('maintenance-due');
+});
 });
 
 require __DIR__.'/auth.php';

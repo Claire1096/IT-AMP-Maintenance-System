@@ -23,6 +23,7 @@ class AssetController extends Controller
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
             ->when($request->category_id, fn ($q) => $q->where('category_id', $request->category_id))
             ->when($request->department_id, fn ($q) => $q->where('department_id', $request->department_id))
+            ->when($request->location_id, fn ($q) => $q->where('location_id', $request->location_id))
             ->when($request->search, function ($q) use ($request) {
                 $q->where(function ($sub) use ($request) {
                     $sub->where('asset_tag', 'like', "%{$request->search}%")
@@ -32,43 +33,37 @@ class AssetController extends Controller
             })
             ->latest()
             ->paginate(20);
-            
-            $stats = [
+
+        $stats = [
             'total' => Asset::count(),
-'active' => Asset::where('status', 'active')->count(),
-'under_repair' => Asset::where('status', 'under_repair')->count(),
-'expiring_soon' => Asset::whereNotNull('warranty_expiration')
-->whereBetween('warranty_expiration', [now(), now()->addDays(30)])
-->count(),
+            'active' => Asset::where('status', 'active')->count(),
+            'under_repair' => Asset::where('status', 'under_repair')->count(),
+            'expiring_soon' => Asset::whereNotNull('warranty_expiration')
+                ->whereBetween('warranty_expiration', [now(), now()->addDays(30)])
+                ->count(),
+        ];
 
-];
-
-
-
-
-
-        return view('assets.index',[
-'assets' => $assets,
-'stats' => $stats,
-'categories' => AssetCategory::all(),
-'departments' => Department::all(),
-'locations' => Location::with('building')->get(),
-
-]);
-
-}
-    
-
-    public function create()
-    {
-        return view('assets.create', [
+        return view('assets.index', [
+            'assets' => $assets,
+            'stats' => $stats,
             'categories' => AssetCategory::all(),
-            'employees' => Employee::where('is_active', true)->orderBy('first_name')->get(),
             'departments' => Department::all(),
             'locations' => Location::with('building')->get(),
-            'suppliers' => Supplier::all(),
         ]);
     }
+
+  public function create()
+{
+    return view('assets.create', [
+        'categories' => AssetCategory::all(),
+        'employees' => Employee::where('is_active', true)->orderBy('first_name')->get(),
+        'departments' => Department::all(),
+        'locations' => Location::with('building')->get(),
+        'suppliers' => Supplier::all(),
+        'positions' => \App\Models\Position::orderBy('department_id')->get(),
+    ]);
+}
+    
 
     public function store(Request $request)
     {
@@ -85,11 +80,8 @@ class AssetController extends Controller
             'purchase_cost' => 'nullable|numeric|min:0',
             'warranty_expiration' => 'nullable|date|after_or_equal:purchase_date',
             'supplier_id' => 'nullable|exists:suppliers,id',
-            'status' => 'required|in:active,under_repair,for_disposal,lost',
-            'notes' => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
-
-        $validated['asset_tag'] = $this->generateAssetTag($validated['category_id']);
 
         $validated['asset_tag'] = $this->generateAssetTag($validated['category_id']);
         $validated['status'] = 'active';
@@ -117,11 +109,12 @@ class AssetController extends Controller
             'assignments.employee', 'movements.fromLocation', 'movements.toLocation',
             'maintenanceSchedules' => fn ($q) => $q->latest('scheduled_date'),
             'repairHistories' => fn ($q) => $q->latest('reported_date'),
-       ]);
+        ]);
 
         $employees = \App\Models\Employee::where('is_active', true)->orderBy('first_name')->get();
+        $departments = \App\Models\Department::all();
 
-        return view('assets.show', compact('asset', 'employees'));
+        return view('assets.show', compact('asset', 'employees', 'departments'));
     }
 
     public function edit(Asset $asset)
@@ -150,7 +143,7 @@ class AssetController extends Controller
             'warranty_expiration' => 'nullable|date',
             'supplier_id' => 'nullable|exists:suppliers,id',
             'status' => 'required|in:active,under_repair,for_disposal,lost',
-            'notes' => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
 
         // Log a movement if location changed
@@ -230,3 +223,4 @@ class AssetController extends Controller
         $asset->update(['qr_code_path' => $path]);
     }
 }
+

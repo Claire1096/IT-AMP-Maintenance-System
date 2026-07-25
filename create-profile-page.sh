@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+mkdir -p resources/views/profile
+
+echo 'Writing resources/views/profile/edit.blade.php'
+cat > resources/views/profile/edit.blade.php << 'PROFEOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,9 +56,16 @@
                     @include('profile.partials.update-password-form')
                 </div>
 
+                <div class="bg-white border border-red-200 rounded-xl p-6 shadow-sm">
+                    <h2 class="text-xs font-bold text-red-600 uppercase mb-4">Delete Account</h2>
+                    @include('profile.partials.delete-user-form')
+                </div>
+
             </div>
         </div>
     </div>
 </body>
 </html>
 
+PROFEOF
+echo 'Profile page restyled to match branded layout!'

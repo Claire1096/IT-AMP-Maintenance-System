@@ -28,7 +28,20 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended($this->redirectPathForUser($request));
+    }
+
+    /**
+     * Determine where to send the user after login, based on their role.
+     */
+    private function redirectPathForUser(Request $request): string
+    {
+        return match ($request->user()->role) {
+            'facility_manager' => route('facility-items.index', absolute: false),
+            'it' => route('dashboard', absolute: false),
+            'executive' => route('dashboard', absolute: false),
+            default => route('dashboard', absolute: false),
+        };
     }
 
     /**

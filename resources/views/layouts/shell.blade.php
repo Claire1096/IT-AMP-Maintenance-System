@@ -41,35 +41,53 @@
          class="absolute mt-2 w-80 right-0 bg-white border border-gray-200 rounded-xl shadow-lg hidden z-50 max-h-96 overflow-y-auto text-xs">
     </div>
 </div>
-            <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-full bg-gray-300"></div>
-                <div class="leading-tight text-xs">
-                    <div class="font-semibold">{{ auth()->user()->name ?? 'Admin user' }}</div>
-                    <div class="text-gray-400">{{ auth()->user()->role ?? 'administrator' }}</div>
-                </div>
-            </div>
+           <div class="flex items-center gap-2">
+    <x-user-avatar :name="auth()->user()->name ?? 'Admin user'" />
+    <div class="leading-tight text-xs">
+        <div class="font-semibold">{{ auth()->user()->name ?? 'Admin user' }}</div>
+        <div class="text-gray-400">{{ auth()->user()->role ?? 'administrator' }}</div>
+    </div>
+</div>
         </div>
     </div>
 
     <div class="flex">
         <div class="w-48 bg-rose-50 border-r border-rose-200 min-h-screen py-4 px-3 space-y-1">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('dashboard') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
-                <span>&#8962;</span> Dashboard
-            </a>
-            <a href="{{ route('assets.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('assets.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
-                <span>&#128421;</span> Assets
-            </a>
-            <a href="{{ route('employees.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('employees.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
-                <span>&#128101;</span> Employees
-            </a>
-            <a href="{{ route('maintenance.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('maintenance.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
-                <span>&#9881;</span> Maintenance
-            </a>
-            <a href="{{ route('reports.inventory') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('reports.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
-                <span>&#128196;</span> Reports
-            </a>
-        </div>
+    @php $role = auth()->user()->role ?? null; @endphp
 
+    @if (in_array($role, ['it', 'executive']))
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('dashboard') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+            <span>&#8962;</span> Dashboard
+        </a>
+        <a href="{{ route('assets.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('assets.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+            <span>&#128421;</span> Assets
+        </a>
+        <a href="{{ route('employees.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('employees.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+            <span>&#128101;</span> Employees
+        </a>
+        <a href="{{ route('maintenance.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('maintenance.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+            <span>&#9881;</span> Maintenance
+        </a>
+        <a href="{{ route('reports.inventory') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('reports.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+            <span>&#128196;</span> Reports
+        </a>
+    @endif
+
+    @if (in_array($role, ['facility_manager', 'executive']))
+    <a href="{{ route('facility-items.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('facility-items.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#127970;</span> Facility Inventory
+    </a>
+    <a href="{{ route('facility-maintenance.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('facility-maintenance.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#9881;</span> Maintenance
+    </a>
+    <a href="{{ route('facility-reports.inventory') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('facility-reports.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#128196;</span> Reports
+    </a>
+@endif
+</div>
+@if (session('error'))
+    <div class="bg-red-100 text-red-800 text-xs px-6 py-2">{{ session('error') }}</div>
+@endif
         <div class="flex-1 p-6">
             @yield('content')
         </div>

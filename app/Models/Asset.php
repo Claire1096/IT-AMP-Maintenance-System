@@ -16,7 +16,7 @@ class Asset extends Model
         'asset_tag', 'name', 'category_id', 'brand', 'model', 'serial_number',
         'assigned_employee_id', 'department_id', 'location_id',
         'purchase_date', 'purchase_cost', 'warranty_expiration', 'supplier_id',
-        'status', 'notes', 'qr_code_path',
+        'status', 'description', 'qr_code_path',
     ];
 
     protected $casts = [

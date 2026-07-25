@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+mkdir -p resources/views/profile
+
+echo 'Writing resources/views/profile/edit.blade.php'
+cat > resources/views/profile/edit.blade.php << 'PROFEOF2'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,3 +62,5 @@
 </body>
 </html>
 
+PROFEOF2
+echo 'Delete Account section removed!'
