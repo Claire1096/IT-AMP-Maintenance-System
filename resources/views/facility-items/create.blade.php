@@ -23,7 +23,7 @@
 
     <form method="POST" action="{{ route('facility-items.store') }}">
         @csrf
-        <div class="grid grid-cols-2 gap-6 max-w-3xl">
+        <div class="grid grid-cols-2 gap-6 max-w-5xl">
 
             <div class="bg-white border border-rose-100 rounded-xl p-5 shadow-sm">
                 <h2 class="text-xs font-bold text-pink-600 uppercase mb-4">&#128221; Asset Information</h2>
@@ -66,6 +66,35 @@
                     </div>
                 </div>
 
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-500 mb-1">CATEGORY *</label>
+                        <select name="category" required class="w-full text-xs border-gray-300 rounded-md">
+                            <option value="">Choose Category</option>
+                            <option value="Facility and Maintenance" @selected(old('category') === 'Facility and Maintenance')>Facility and Maintenance</option>
+                            <option value="Fixed Asset Inventory" @selected(old('category') === 'Fixed Asset Inventory')>Fixed Asset Inventory</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-500 mb-1">ASSET TYPE</label>
+                        <select name="asset_type" class="w-full text-xs border-gray-300 rounded-md">
+                            <option value="">Choose Asset Type</option>
+                            @foreach ($assetTypes as $type)
+                                <option value="{{ $type }}" @selected(old('asset_type') === $type)>{{ ucfirst($type) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">BUILDING STRUCTURE</label>
+                    <select name="building_structure" class="w-full text-xs border-gray-300 rounded-md">
+                        <option value="">Choose Building Structure</option>
+                        @foreach ($buildingStructures as $structure)
+                            <option value="{{ $structure }}" @selected(old('building_structure') === $structure)>{{ ucfirst($structure) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="mb-3">
                     <label class="block text-[10px] font-semibold text-gray-500 mb-1">BARCODE / QR CODE</label>
                     <div class="text-xs text-gray-400 border border-dashed border-gray-300 rounded-md px-3 py-2 flex items-center gap-2">
@@ -93,18 +122,6 @@
             <div class="bg-white border border-rose-100 rounded-xl p-5 shadow-sm flex flex-col justify-between">
                 <div>
                     <h2 class="text-xs font-bold text-pink-600 uppercase mb-4">&#128100; Asset Assignment</h2>
-
-                    <div>
-                        <label class="block text-[10px] font-semibold text-gray-500 mb-1">CATEGORY *</label>
-                        <input type="text" name="category" list="category-suggestions" value="{{ old('category') }}" required
-                               placeholder="Type or pick a category..." autocomplete="off"
-                               class="w-full text-xs border-gray-300 rounded-md">
-                        <datalist id="category-suggestions">
-                            @foreach ($categorySuggestions as $suggestion)
-                                <option value="{{ $suggestion }}">
-                            @endforeach
-                        </datalist>
-                    </div>
 
                     <div class="mb-3">
                         <label class="block text-[10px] font-semibold text-gray-500 mb-1">DEPARTMENT</label>

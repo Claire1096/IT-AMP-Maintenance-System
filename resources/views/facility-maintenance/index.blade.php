@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-3 gap-4 mb-6 max-w-3xl">
+    <div class="grid grid-cols-3 gap-4 mb-6">
         <div class="bg-white border border-rose-100 rounded-xl p-4 shadow-sm">
             <p class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Pending</p>
             <p class="text-2xl font-bold text-gray-700">{{ $stats['pending'] }}</p>
@@ -47,7 +47,7 @@
         </form>
     </div>
 
-    <div class="bg-white border border-rose-100 rounded-xl shadow-sm overflow-hidden max-w-4xl">
+    <div class="bg-white border border-rose-100 rounded-xl shadow-sm overflow-hidden">
         <table class="w-full text-xs">
             <thead class="bg-rose-50 text-pink-600 uppercase text-[10px]">
                 <tr>
@@ -86,7 +86,6 @@
                             @if ($maintenance->status !== 'done')
                                 <form method="POST" action="{{ route('facility-maintenance.complete', $maintenance) }}" class="inline">
                                     @csrf
-                                    @method('PATCH')
                                     <button type="submit" class="px-3 py-1 bg-pink-600 text-white text-[10px] font-semibold rounded-full hover:bg-pink-700">
                                         MARK DONE
                                     </button>
@@ -103,7 +102,7 @@
         </table>
     </div>
 
-    <div class="mt-4 max-w-4xl">
+    <div class="mt-4">
         {{ $maintenances->links() }}
     </div>
 @endsection

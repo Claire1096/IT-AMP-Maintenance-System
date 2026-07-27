@@ -11,7 +11,9 @@ use App\Models\FacilityMaintenance;
 
 class FacilityItemController extends Controller
 {
-   private array $categories = ['Furniture', 'Office Supplies', 'Appliance', 'Fixture', 'Other'];
+    private array $categories = ['Facility and Maintenance', 'Fixed Asset Inventory'];
+    private array $assetTypes = ['tools', 'supplies', 'equipment', 'electronics', 'furniture', 'vehicles', 'machinery'];
+    private array $buildingStructures = ['doors', 'windows', 'walls', 'flooring', 'light', 'switch', 'outlet', 'roof', 'gate', 'water tank'];
     private array $statuses = ['in_use', 'in_storage', 'damaged', 'disposed'];
     private array $conditions = ['good', 'fair', 'poor'];
 
@@ -20,6 +22,7 @@ class FacilityItemController extends Controller
     $items = FacilityItem::query()
         ->with(['department', 'location'])
         ->when($request->category, fn ($q) => $q->where('category', $request->category))
+        ->when($request->asset_type, fn ($q) => $q->where('asset_type', $request->asset_type))
         ->when($request->status, fn ($q) => $q->where('status', $request->status))
         ->when($request->department_id, fn ($q) => $q->where('department_id', $request->department_id))
         ->when($request->search, function ($q) use ($request) {
@@ -49,7 +52,7 @@ class FacilityItemController extends Controller
         'departments' => Department::all(),
         'categories' => $this->categories,
         'statuses' => $this->statuses,
-        'maintenances' => $maintenances,
+        'assetTypes' => $this->assetTypes,
     ]);
 }
 
@@ -63,6 +66,8 @@ public function create()
         'categorySuggestions' => $this->categories,
         'conditions' => $this->conditions,
         'statuses' => $this->statuses,
+        'assetTypes' => $this->assetTypes,
+        'buildingStructures' => $this->buildingStructures,
     ]);
 }
    public function store(Request $request)
@@ -70,7 +75,7 @@ public function create()
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'brand' => 'nullable|string|max:255',
-        'category' => 'required|string|max:100',
+        'category' => 'required|in:Facility and Maintenance,Fixed Asset Inventory',
         'description' => 'nullable|string|max:1000',
         'quantity' => 'required|integer|min:1',
         'department_id' => 'nullable|exists:departments,id',
@@ -80,6 +85,8 @@ public function create()
         'purchase_date' => 'nullable|date',
         'purchase_cost' => 'nullable|numeric|min:0',
         'supplier_id' => 'nullable|exists:suppliers,id',
+        'asset_type' => 'nullable|in:' . implode(',', $this->assetTypes),
+        'building_structure' => 'nullable|in:' . implode(',', $this->buildingStructures),
     ]);
 
     $validated['item_tag'] = $this->generateItemTag($validated['category']);
@@ -148,13 +155,13 @@ public function create()
 
     private function generateItemTag(string $category): string
 {
-    $prefix = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $category), 0, 3));
+    $prefix = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $category), 0, 3)) ?: 'GEN';
     $year = now()->year;
 
-    $count = FacilityItem::where('category', $category)
-        ->whereYear('created_at', $year)
+    $count = FacilityItem::withTrashed()
+        ->where('item_tag', 'like', "FAC-{$prefix}-{$year}-%")
         ->count() + 1;
 
-    return sprintf('FAC-%s-%d-%04d', $prefix ?: 'GEN', $year, $count);
+    return sprintf('FAC-%s-%d-%04d', $prefix, $year, $count);
 }
 }

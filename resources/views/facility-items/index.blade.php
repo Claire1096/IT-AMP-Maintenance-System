@@ -48,7 +48,7 @@
 
     <form method="GET" class="bg-white border border-rose-100 p-5 rounded-xl shadow-sm mb-6">
         <h2 class="text-xs font-bold text-gray-500 uppercase mb-3">&#128269; Filter Items</h2>
-        <div class="grid grid-cols-4 gap-4 mb-4">
+        <div class="grid grid-cols-5 gap-4 mb-4">
             <div>
                 <label class="block text-[10px] font-semibold text-gray-500 mb-1">CATEGORY</label>
                 <select name="category" class="w-full text-xs border-gray-300 rounded-md">
@@ -56,6 +56,15 @@
                     @foreach ($categories as $category)
                         <option value="{{ $category }}" @selected(request('category') === $category)>{{ ucwords(str_replace('_', ' ', $category)) }}</option>
                     @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-semibold text-gray-500 mb-1">ASSET TYPE</label>
+                <select name="asset_type" class="w-full text-xs border-gray-300 rounded-md">
+                    <option value="">All Asset Types</option>
+                @foreach ($assetTypes as $type)
+                    <option value="{{ $type }}" @selected(request('asset_type') === $type)>{{ ucfirst($type) }}</option>
+                @endforeach
                 </select>
             </div>
             <div>
@@ -94,10 +103,11 @@
                     <th class="px-4 py-3">Item Tag</th>
                     <th class="px-4 py-3">Name</th>
                     <th class="px-4 py-3">Category</th>
+                    <th class="px-4 py-3">Asset Type</th>
                     <th class="px-4 py-3">Qty</th>
                     <th class="px-4 py-3">Department</th>
                     <th class="px-4 py-3">Condition</th>
-                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">Location</th>
                     <th class="px-4 py-3">Action</th>
                 </tr>
             </thead>
@@ -107,6 +117,7 @@
                         <td class="px-4 py-3 font-mono">{{ $item->item_tag }}</td>
                         <td class="px-4 py-3">{{ $item->name }}</td>
                         <td class="px-4 py-3">{{ ucwords(str_replace('_', ' ', $item->category)) }}</td>
+                        <td class="px-4 py-3">{{ $item->asset_type ? ucfirst($item->asset_type) : '—' }}</td>
                         <td class="px-4 py-3">{{ $item->quantity }}</td>
                         <td class="px-4 py-3">{{ $item->department->name ?? '—' }}</td>
                         <td class="px-4 py-3">
@@ -120,16 +131,8 @@
                             </span>
                         </td>
                         <td class="px-4 py-3">
-                            <span @class([
-                                'px-2 py-1 rounded-full font-semibold text-[10px]',
-                                'bg-green-500 text-white' => $item->status === 'in_use',
-                                'bg-indigo-500 text-white' => $item->status === 'in_storage',
-                                'bg-red-500 text-white' => $item->status === 'damaged',
-                                'bg-gray-400 text-white' => $item->status === 'disposed',
-                            ])>
-                                {{ strtoupper(str_replace('_', ' ', $item->status)) }}
-                            </span>
-                        </td>
+                            {{ $item->location ? ($item->location->building ? $item->location->building->name . ' — ' . $item->location->name : $item->location->name) : '—' }}
+                         </td>
                         <td class="px-4 py-3">
                             <div class="flex gap-2">
                                 <a href="{{ route('facility-items.edit', $item) }}" title="Edit">&#9998;</a>

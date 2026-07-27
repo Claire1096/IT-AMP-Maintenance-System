@@ -10,11 +10,11 @@ class FacilityItem extends Model
 {
     use HasFactory, SoftDeletes;
 
-  protected $fillable = [
-    'item_tag', 'name', 'category', 'description', 'quantity',
-    'department_id', 'location_id', 'condition', 'status',
-    'purchase_date', 'purchase_cost', 'supplier_id',
-];
+    protected $fillable = [
+        'item_tag', 'name', 'brand', 'category', 'asset_type', 'building_structure', 'description', 'quantity',
+        'department_id', 'location_id', 'condition', 'status',
+        'purchase_date', 'purchase_cost', 'supplier_id', 'qr_code_path',
+    ];
 
     protected $casts = [
         'purchase_date' => 'date',

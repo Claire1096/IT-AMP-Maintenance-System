@@ -18,6 +18,19 @@ class FacilityMaintenanceController extends Controller
 
     public function index(Request $request)
     {
+
+        FacilityMaintenance::where('status', 'pending')
+        ->get()
+        ->each(function ($maintenance) {
+            $deadline = $maintenance->scheduled_time
+                ? \Carbon\Carbon::parse($maintenance->due_date->format('Y-m-d') . ' ' . $maintenance->scheduled_time)
+                : $maintenance->due_date->endOfDay();
+
+            if (now()->greaterThan($deadline)) {
+                $maintenance->update(['status' => 'overdue']);
+        }
+    });    
+
         $maintenances = FacilityMaintenance::query()
             ->with('item')
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
