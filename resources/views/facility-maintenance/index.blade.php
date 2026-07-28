@@ -82,16 +82,21 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-gray-500">{{ $maintenance->notes ?: '—' }}</td>
-                        <td class="px-4 py-3 text-right">
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex justify-end gap-2 items-center">
+                            <a href="{{ route('facility-maintenance.show', $maintenance) }}" class="px-3 py-1 border border-gray-300 text-gray-600 text-[10px] font-semibold rounded-full hover:bg-gray-50">
+                                VIEW
+                            </a>
                             @if ($maintenance->status !== 'done')
                                 <form method="POST" action="{{ route('facility-maintenance.complete', $maintenance) }}" class="inline">
-                                    @csrf
+                                @csrf
                                     <button type="submit" class="px-3 py-1 bg-pink-600 text-white text-[10px] font-semibold rounded-full hover:bg-pink-700">
                                         MARK DONE
                                     </button>
                                 </form>
                             @endif
-                        </td>
+                        </div>
+                    </td>
                     </tr>
                 @empty
                     <tr>

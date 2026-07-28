@@ -71,8 +71,7 @@
                         <label class="block text-[10px] font-semibold text-gray-500 mb-1">CATEGORY *</label>
                         <select name="category" required class="w-full text-xs border-gray-300 rounded-md">
                             <option value="">Choose Category</option>
-                            <option value="Facility and Maintenance" @selected(old('category') === 'Facility and Maintenance')>Facility and Maintenance</option>
-                            <option value="Fixed Asset Inventory" @selected(old('category') === 'Fixed Asset Inventory')>Fixed Asset Inventory</option>
+                            <option value="Facility and Maintenance" @selected(old('category', 'Facility and Maintenance') === 'Facility and Maintenance')>Facility and Maintenance</option>
                         </select>
                     </div>
                     <div>

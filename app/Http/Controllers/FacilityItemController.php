@@ -11,7 +11,7 @@ use App\Models\FacilityMaintenance;
 
 class FacilityItemController extends Controller
 {
-    private array $categories = ['Facility and Maintenance', 'Fixed Asset Inventory'];
+    private array $categories = ['Facility and Maintenance'];
     private array $assetTypes = ['tools', 'supplies', 'equipment', 'electronics', 'furniture', 'vehicles', 'machinery'];
     private array $buildingStructures = ['doors', 'windows', 'walls', 'flooring', 'light', 'switch', 'outlet', 'roof', 'gate', 'water tank'];
     private array $statuses = ['in_use', 'in_storage', 'damaged', 'disposed'];
@@ -60,7 +60,7 @@ public function create()
 {
     return view('facility-items.create', [
         'departments' => Department::all(),
-        'buildings' => \App\Models\Building::all(),
+        'buildings' => \App\Models\Building::orderBy('name')->get(),
         'locations' => Location::with('building')->get(),
         'suppliers' => Supplier::all(),
         'categorySuggestions' => $this->categories,
@@ -75,7 +75,7 @@ public function create()
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'brand' => 'nullable|string|max:255',
-        'category' => 'required|in:Facility and Maintenance,Fixed Asset Inventory',
+        'category' => 'required|in:Facility and Maintenance',
         'description' => 'nullable|string|max:1000',
         'quantity' => 'required|integer|min:1',
         'department_id' => 'nullable|exists:departments,id',
@@ -116,7 +116,7 @@ public function create()
     return view('facility-items.edit', [
         'item' => $facilityItem,
         'departments' => Department::all(),
-        'buildings' => \App\Models\Building::all(),
+        'buildings' => \App\Models\Building::orderBy('name')->get(),
         'locations' => Location::with('building')->get(),
         'suppliers' => Supplier::all(),
         'categories' => $this->categories,

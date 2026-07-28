@@ -1,14 +1,23 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Models\Asset;
+use App\Models\FacilityMaintenance;
 use App\Models\MaintenanceSchedule;
 use Illuminate\Http\Request;
-
 class NotificationController extends Controller
 {
     public function index(Request $request)
+    {
+        $role = auth()->user()->role ?? null;
+
+        if ($role === 'facility_manager') {
+            return $this->facilityNotifications();
+        }
+
+        return $this->itNotifications();
+    }
+
+    private function itNotifications()
     {
         $warrantyExpiring = Asset::query()
             ->whereNotNull('warranty_expiration')
@@ -36,6 +45,27 @@ class NotificationController extends Controller
                 'label' => $m->asset->name ?? 'Unknown asset',
                 'detail' => ucfirst($m->status) . ' — due ' . optional($m->next_maintenance_date)->format('M d, Y'),
                 'url' => route('assets.show', $m->asset_id),
+            ]),
+        ]);
+    }
+
+    private function facilityNotifications()
+    {
+        $facilityMaintenanceDue = FacilityMaintenance::query()
+            ->with('item')
+            ->whereIn('status', ['pending', 'overdue'])
+            ->whereDate('due_date', '<=', now()->addDays(7))
+            ->orderBy('due_date')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'count' => $facilityMaintenanceDue->count(),
+            'warranty' => [],
+            'maintenance' => $facilityMaintenanceDue->map(fn ($m) => [
+                'label' => $m->item->name ?? 'Item removed',
+                'detail' => ucfirst($m->status) . ' — due ' . optional($m->due_date)->format('M d, Y'),
+                'url' => route('facility-maintenance.show', $m->id),
             ]),
         ]);
     }

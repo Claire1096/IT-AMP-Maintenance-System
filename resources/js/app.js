@@ -18,42 +18,66 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderResults(data) {
-        const hasAssets = data.assets && data.assets.length > 0;
-        const hasEmployees = data.employees && data.employees.length > 0;
+    const hasAssets = data.assets && data.assets.length > 0;
+    const hasEmployees = data.employees && data.employees.length > 0;
+    const hasFacilityItems = data.facilityItems && data.facilityItems.length > 0;
+    const hasDamageReports = data.damageReports && data.damageReports.length > 0;
 
-        if (!hasAssets && !hasEmployees) {
-            resultsBox.innerHTML = `<div class="p-3 text-sm text-gray-500">No results for "${data.query}"</div>`;
-            resultsBox.classList.remove('hidden');
-            return;
-        }
-
-        let html = '';
-
-        if (hasAssets) {
-            html += `<div class="px-3 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase">Assets</div>`;
-            data.assets.forEach(a => {
-                html += `
-                    <a href="${a.url ?? '#'}" class="block px-3 py-2 hover:bg-pink-50 border-b border-gray-100">
-                        <div class="text-sm font-medium text-gray-800">${a.name ?? ''} <span class="text-xs text-gray-400">#${a.asset_tag ?? ''}</span></div>
-                        <div class="text-xs text-gray-500">${a.category ?? ''} ${a.assigned_to ? '· ' + a.assigned_to : ''}</div>
-                    </a>`;
-            });
-        }
-
-        if (hasEmployees) {
-            html += `<div class="px-3 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase">Employees</div>`;
-            data.employees.forEach(e => {
-                html += `
-                    <a href="${e.url ?? '#'}" class="block px-3 py-2 hover:bg-pink-50 border-b border-gray-100">
-                        <div class="text-sm font-medium text-gray-800">${e.name}</div>
-                        <div class="text-xs text-gray-500">${e.department ? e.department : ''}</div>
-                    </a>`;
-            });
-        }
-
-        resultsBox.innerHTML = html;
+    if (!hasAssets && !hasEmployees && !hasFacilityItems && !hasDamageReports) {
+        resultsBox.innerHTML = `<div class="p-3 text-sm text-gray-500">No results for "${data.query}"</div>`;
         resultsBox.classList.remove('hidden');
+        return;
     }
+
+    if (hasDamageReports) {
+    html += `<div class="px-3 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase">Damage Reports</div>`;
+    data.damageReports.forEach(r => {
+        html += `
+            <a href="${r.url ?? '#'}" class="block px-3 py-2 hover:bg-pink-50 border-b border-gray-100">
+                <div class="text-sm font-medium text-gray-800">${r.report_number ?? ''}</div>
+                <div class="text-xs text-gray-500">${r.asset_name ?? ''} ${r.cause ? '· ' + r.cause : ''}</div>
+            </a>`;
+    });
+}
+
+    let html = '';
+
+    if (hasAssets) {
+        html += `<div class="px-3 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase">Assets</div>`;
+        data.assets.forEach(a => {
+            html += `
+                <a href="${a.url ?? '#'}" class="block px-3 py-2 hover:bg-pink-50 border-b border-gray-100">
+                    <div class="text-sm font-medium text-gray-800">${a.name ?? ''} <span class="text-xs text-gray-400">#${a.asset_tag ?? ''}</span></div>
+                    <div class="text-xs text-gray-500">${a.category ?? ''} ${a.assigned_to ? '· ' + a.assigned_to : ''}</div>
+                </a>`;
+        });
+    }
+
+    if (hasFacilityItems) {
+        html += `<div class="px-3 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase">Facility Items</div>`;
+        data.facilityItems.forEach(f => {
+            html += `
+                <a href="${f.url ?? '#'}" class="block px-3 py-2 hover:bg-pink-50 border-b border-gray-100">
+                    <div class="text-sm font-medium text-gray-800">${f.name ?? ''} <span class="text-xs text-gray-400">#${f.item_tag ?? ''}</span></div>
+                    <div class="text-xs text-gray-500">${f.category ?? ''} ${f.department ? '· ' + f.department : ''}</div>
+                </a>`;
+        });
+    }
+
+    if (hasEmployees) {
+        html += `<div class="px-3 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase">Employees</div>`;
+        data.employees.forEach(e => {
+            html += `
+                <a href="${e.url ?? '#'}" class="block px-3 py-2 hover:bg-pink-50 border-b border-gray-100">
+                    <div class="text-sm font-medium text-gray-800">${e.name}</div>
+                    <div class="text-xs text-gray-500">${e.department ? e.department : ''}</div>
+                </a>`;
+        });
+    }
+
+    resultsBox.innerHTML = html;
+    resultsBox.classList.remove('hidden');
+}
 
     input.addEventListener('input', function () {
         const q = this.value.trim();

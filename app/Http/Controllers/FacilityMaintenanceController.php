@@ -80,6 +80,13 @@ class FacilityMaintenanceController extends Controller
         return redirect()->route('facility-maintenance.index')->with('success', 'Maintenance scheduled.');
     }
 
+        public function show(FacilityMaintenance $facilityMaintenance)
+    {
+        $facilityMaintenance->load('item');
+
+        return view('facility-maintenance.show', ['maintenance' => $facilityMaintenance]);
+    }
+
     public function complete(FacilityMaintenance $facilityMaintenance)
     {
         $facilityMaintenance->update([
