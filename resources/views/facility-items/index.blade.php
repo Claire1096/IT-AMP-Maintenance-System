@@ -96,6 +96,22 @@
         </div>
     </form>
 
+    <div class="mt-6 mb-4 flex justify-end items-center gap-3 pr-2">
+    @if ($items->onFirstPage())
+        <span class="w-14 h-11 flex items-center justify-center rounded-full bg-[#13000A] text-white text-lg opacity-40 cursor-not-allowed">&#8249;</span>
+    @else
+        <a href="{{ $items->previousPageUrl() }}" class="w-14 h-11 flex items-center justify-center rounded-full bg-[#13000A] text-white text-lg hover:opacity-80">&#8249;</a>
+    @endif
+
+    <span class="w-14 h-11 flex items-center justify-center rounded-full border-2 border-gray-300 text-sm font-bold">{{ $items->currentPage() }}</span>
+
+    @if ($items->hasMorePages())
+        <a href="{{ $items->nextPageUrl() }}" class="w-14 h-11 flex items-center justify-center rounded-full bg-[#13000A] text-white text-lg hover:opacity-80">&#8250;</a>
+    @else
+        <span class="w-14 h-11 flex items-center justify-center rounded-full bg-[#13000A] text-white text-lg opacity-40 cursor-not-allowed">&#8250;</span>
+    @endif
+</div>
+
     <div class="bg-white border border-rose-100 overflow-hidden shadow-sm rounded-xl">
         <table class="min-w-full divide-y divide-rose-100 text-xs">
             <thead class="bg-pink-100">
@@ -154,9 +170,5 @@
                 @endforelse
             </tbody>
         </table>
-    </div>
-
-    <div class="mt-4">
-        {{ $items->withQueryString()->links() }}
     </div>
 @endsection

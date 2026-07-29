@@ -33,14 +33,14 @@ class DashboardController extends Controller
         $assetsByDepartment = Department::withCount('assets')->get(['id', 'name']);
 
         // Monthly maintenance report: completed schedules + repair costs, grouped by month, last 6 months
-        $monthlyMaintenance = MaintenanceSchedule::selectRaw("strftime('%Y-%m', completed_at) as month, COUNT(*) as completed_count")
+        $monthlyMaintenance = MaintenanceSchedule::selectRaw("DATE_FORMAT(completed_at, '%Y-%m') as month, COUNT(*) as completed_count")
             ->where('status', 'completed')
             ->where('completed_at', '>=', now()->subMonths(6))
             ->groupBy('month')
             ->orderBy('month')
             ->get();
 
-        $monthlyRepairCost = RepairHistory::selectRaw("strftime('%Y-%m', repair_date) as month, SUM(cost) as total_cost")
+        $monthlyRepairCost = RepairHistory::selectRaw("DATE_FORMAT(repair_date, '%Y-%m') as month, SUM(cost) as total_cost")
             ->whereNotNull('repair_date')
             ->where('repair_date', '>=', now()->subMonths(6))
             ->groupBy('month')

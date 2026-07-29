@@ -32,7 +32,7 @@ class FacilityItemController extends Controller
             });
         })
         ->latest()
-        ->paginate(20);
+        ->simplePaginate(10);
 
     $stats = [
         'total' => FacilityItem::count(),
