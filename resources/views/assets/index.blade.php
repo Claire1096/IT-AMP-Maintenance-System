@@ -1,54 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Asset Management — EM Power Beautiful Skin</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-rose-50 text-gray-800 text-sm">
+@extends('layouts.shell')
+@section('title', 'Asset Management')
+@section('content')
 
-    <div class="bg-rose-100 border-b border-rose-200 px-6 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold text-xs">EM</div>
-            <div class="leading-tight">
-                <div class="font-semibold text-pink-700 text-sm">EM Power Beautiful Skin</div>
-                <div class="text-[10px] tracking-widest text-gray-400">CORPORATION</div>
-            </div>
-        </div>
-        <div class="flex items-center gap-4">
-            <input type="text" placeholder="search asset ID/Employee..." class="text-xs border-gray-300 rounded-full px-4 py-1.5 w-56">
-            <x-notification-bell />
-            <x-account-menu />
-        </div>
-    </div>
-
-    <div class="flex">
-        <div class="w-48 bg-rose-50 border-r border-rose-200 min-h-screen py-4 px-3 space-y-1">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-rose-100">
-                <span>&#8962;</span> Dashboard
-            </a>
-            <a href="{{ route('assets.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-orange-200 text-gray-800">
-                <span>&#128421;</span> Assets
-            </a>
-            <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-400 cursor-not-allowed">
-                <span>&#128101;</span> Employees
-            </a>
-            <a href="{{ route('maintenance.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-rose-100">
-                <span>&#9881;</span> Maintenance
-            </a>
-            <a href="{{ route('reports.inventory') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-rose-100">
-                <span>&#128196;</span> Reports
-            </a>
-        </div>
-
-        <div class="flex-1 p-6">
             <div class="flex justify-between items-start mb-6">
                 <div>
                     <h1 class="text-lg font-bold">ASSET MANAGEMENT</h1>
                     <p class="text-xs text-gray-400">All registered assets</p>
                 </div>
-                <a href="{{ route('assets.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ ADD ASSET</a>
+                @unless (auth()->user()->role === 'executive')
+                    <a href="{{ route('assets.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ ADD ASSET</a>
+                @endunless
             </div>
 
             @if (session('success'))
@@ -160,7 +121,7 @@
                         @forelse ($assets as $asset)
                             <tr class="hover:bg-rose-50">
                                 <td class="px-4 py-3 font-mono">{{ $asset->asset_tag }}</td>
-           <td class="px-4 py-3">{{ $asset->category->name ?? '—' }}</td>
+                                <td class="px-4 py-3">{{ $asset->category->name ?? '—' }}</td>
                                 <td class="px-4 py-3">{{ $asset->assignedEmployee->full_name ?? '—' }}</td>
                                 <td class="px-4 py-3">{{ $asset->department->name ?? '—' }}</td>
                                 <td class="px-4 py-3">{{ $asset->location->name ?? '—' }}</td>
@@ -207,8 +168,5 @@
             <div class="mt-4">
                 {{ $assets->withQueryString()->links() }}
             </div>
-        </div>
-    </div>
-</body>
-</html>
 
+@endsection

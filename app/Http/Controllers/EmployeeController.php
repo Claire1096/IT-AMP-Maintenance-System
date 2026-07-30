@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\Position;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -36,6 +37,7 @@ class EmployeeController extends Controller
     {
         return view('employees.create', [
             'departments' => Department::all(),
+            'positions' => Position::all(),
         ]);
     }
 

@@ -16,6 +16,11 @@
                 <div class="text-[10px] tracking-widest text-gray-400">CORPORATION</div>
             </div>
         </div>
+        <div class="flex items-center gap-4">
+            <input type="text" placeholder="search asset ID/Employee..." class="text-xs border-gray-300 rounded-full px-4 py-1.5 w-56">
+            <x-notification-bell />
+            <x-account-menu />
+        </div>
     </div>
 
     <div class="flex">

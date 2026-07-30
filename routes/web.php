@@ -15,6 +15,7 @@ use App\Http\Controllers\FacilityMaintenanceController;
 use App\Http\Controllers\FacilityReportController;
 use App\Http\Controllers\DamageReportController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ExecutiveController;
 
 
 Route::get('/', function () {
@@ -78,6 +79,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('condition', [FacilityReportController::class, 'condition'])->name('condition');
         Route::get('department-distribution', [FacilityReportController::class, 'departmentDistribution'])->name('department-distribution');
         Route::get('maintenance-due', [FacilityReportController::class, 'maintenanceDue'])->name('maintenance-due');
+    });
+        Route::middleware(['auth'])->group(function () {
+        Route::get('/executive/dashboard', [ExecutiveController::class, 'index'])->name('executive.dashboard');
     });
 });
 

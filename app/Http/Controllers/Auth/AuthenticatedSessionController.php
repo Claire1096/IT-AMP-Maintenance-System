@@ -39,7 +39,7 @@ class AuthenticatedSessionController extends Controller
         return match ($request->user()->role) {
             'facility_manager' => route('facility-items.index', absolute: false),
             'it' => route('dashboard', absolute: false),
-            'executive' => route('dashboard', absolute: false),
+            'executive' => route('executive.dashboard', absolute: false),
             default => route('dashboard', absolute: false),
         };
     }

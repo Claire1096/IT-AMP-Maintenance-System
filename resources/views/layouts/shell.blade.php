@@ -13,7 +13,7 @@
         @php
     $homeRoute = in_array(auth()->user()->role ?? null, ['facility_manager'])
         ? route('facility-items.index')
-        : (in_array(auth()->user()->role ?? null, ['it', 'executive']) ? route('dashboard') : url('/'));
+        : (in_array(auth()->user()->role ?? null, ['it']) ? route('dashboard') : (auth()->user()->role === 'executive' ? route('executive.dashboard') : url('/')));
 @endphp
 <a href="{{ $homeRoute }}" class="flex items-center gap-2">
     <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold text-xs">EM</div>
@@ -57,7 +57,7 @@
         <div class="w-48 bg-rose-50 border-r border-rose-200 min-h-screen py-4 px-3 space-y-1">
     @php $role = auth()->user()->role ?? null; @endphp
 
-    @if (in_array($role, ['it', 'executive']))
+    @if (in_array($role, ['it']))
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('dashboard') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
             <span>&#8962;</span> Dashboard
         </a>
@@ -75,7 +75,7 @@
         </a>
     @endif
 
-    @if (in_array($role, ['facility_manager', 'executive']))
+    @if (in_array($role, ['facility_manager']))
     <a href="{{ route('facility-items.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('facility-items.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
         <span>&#127970;</span> Facility Inventory
     </a>
@@ -83,6 +83,27 @@
         <span>&#9881;</span> Maintenance
     </a>
     <a href="{{ route('reports.damage.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('reports.damage.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#128196;</span> Reports
+    </a>
+@endif
+
+@if (in_array($role, ['executive']))
+    <a href="{{ route('executive.dashboard') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('executive.dashboard') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#8962;</span> Dashboard
+    </a>
+    <a href="{{ route('assets.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('assets.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#128421;</span> IT Assets
+    </a>
+    <a href="{{ route('facility-items.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('facility-items.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#127970;</span> Facility Assets
+    </a>
+    <a href="{{ route('maintenance.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('maintenance.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#9881;</span> IT Maintenance
+    </a>
+    <a href="{{ route('facility-maintenance.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('facility-maintenance.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#9881;</span> Facility Maintenance
+    </a>
+    <a href="{{ route('reports.inventory') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('reports.*') || request()->routeIs('facility-reports.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
         <span>&#128196;</span> Reports
     </a>
 @endif
