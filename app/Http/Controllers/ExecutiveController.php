@@ -25,4 +25,9 @@ class ExecutiveController extends Controller
             'totalItAssets', 'itAssets', 'totalFacilityAssets', 'facilityItems'
         ));
     }
+
+    public function reports()
+    {
+        return view('executive.reports');
+    }
 }

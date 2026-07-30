@@ -82,6 +82,7 @@ Route::middleware(['auth'])->group(function () {
     });
         Route::middleware(['auth'])->group(function () {
         Route::get('/executive/dashboard', [ExecutiveController::class, 'index'])->name('executive.dashboard');
+        Route::get('/executive/reports', [ExecutiveController::class, 'reports'])->name('executive.reports');
     });
 });
 

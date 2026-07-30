@@ -8,7 +8,9 @@
             <h1 class="text-lg font-bold">FACILITY INVENTORY</h1>
             <p class="text-xs text-gray-400">General facility physical inventory tracking</p>
         </div>
-        <a href="{{ route('facility-items.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ ADD ITEM</a>
+        @unless (auth()->user()->role === 'executive')
+            <a href="{{ route('facility-items.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ ADD ITEM</a>
+        @endunless
     </div>
 
     @if (session('success'))

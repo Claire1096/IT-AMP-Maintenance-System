@@ -10,7 +10,9 @@
         </div>
         <div class="flex gap-2">
             <a href="{{ route('facility-items.index') }}" class="px-4 py-1.5 border border-gray-300 text-gray-600 text-xs font-semibold rounded-full">&#8249; BACK TO ASSETS</a>
-            <a href="{{ route('facility-maintenance.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ SCHEDULE MAINTENANCE</a>
+            @unless (auth()->user()->role === 'executive')
+                <a href="{{ route('facility-maintenance.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ SCHEDULE MAINTENANCE</a>
+            @endunless
         </div>
     </div>
 
