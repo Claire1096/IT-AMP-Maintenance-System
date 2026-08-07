@@ -19,7 +19,7 @@ use App\Http\Controllers\ExecutiveController;
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -40,6 +40,16 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('assets', AssetController::class);
     Route::post('assets/{asset}/reassign', [AssetController::class, 'reassign'])->name('assets.reassign');
     Route::resource('facility-items', FacilityItemController::class);
+    Route::get('audit', [App\Http\Controllers\AuditController::class, 'index'])->name('audit.index');
+    Route::get('audit-reports', [App\Http\Controllers\AuditReportController::class, 'index'])->name('audit-reports.index');
+    Route::resource('finance-items', App\Http\Controllers\FinanceItemController::class);
+    Route::get('finance-counts', [App\Http\Controllers\FinanceMonthlyCountController::class, 'index'])->name('finance-counts.index');
+    Route::post('finance-counts', [App\Http\Controllers\FinanceMonthlyCountController::class, 'create'])->name('finance-counts.create');
+    Route::get('finance-counts/{financeCount}', [App\Http\Controllers\FinanceMonthlyCountController::class, 'show'])->name('finance-counts.show');
+    Route::patch('finance-counts/{financeCount}/items/{item}', [App\Http\Controllers\FinanceMonthlyCountController::class, 'updateItem'])->name('finance-counts.items.update');
+    Route::post('finance-counts/{financeCount}/close', [App\Http\Controllers\FinanceMonthlyCountController::class, 'close'])->name('finance-counts.close');
+    Route::post('finance-counts/{financeCount}/reopen', [App\Http\Controllers\FinanceMonthlyCountController::class, 'reopen'])->name('finance-counts.reopen');
+    Route::delete('finance-counts/{financeCount}', [App\Http\Controllers\FinanceMonthlyCountController::class, 'destroy'])->name('finance-counts.destroy');
     // Employees
     Route::resource('employees', EmployeeController::class);
     Route::post('employees/{employee}/assign-asset', [EmployeeController::class, 'assignAsset'])->name('employees.assign-asset');
@@ -49,11 +59,20 @@ Route::middleware(['auth'])->group(function () {
     // Preventive Maintenance
         Route::get('facility-maintenance', [FacilityMaintenanceController::class, 'index'])->name('facility-maintenance.index');
         Route::get('facility-maintenance/create', [FacilityMaintenanceController::class, 'create'])->name('facility-maintenance.create');
+Route::get('facility-maintenance/{facilityMaintenance}/edit', [FacilityMaintenanceController::class, 'edit'])->name('facility-maintenance.edit');
+Route::put('facility-maintenance/{facilityMaintenance}', [FacilityMaintenanceController::class, 'update'])->name('facility-maintenance.update');
         Route::post('facility-maintenance', [FacilityMaintenanceController::class, 'store'])->name('facility-maintenance.store');
         Route::get('maintenance', [MaintenanceScheduleController::class, 'index'])->name('maintenance.index');
         Route::post('maintenance/{schedule}/complete', [MaintenanceScheduleController::class, 'complete'])->name('maintenance.complete');
+        Route::get('assets/{asset}/maintenance/create', [MaintenanceScheduleController::class, 'create'])->name('maintenance.create');
+        Route::post('assets/{asset}/maintenance', [MaintenanceScheduleController::class, 'store'])->name('maintenance.store');
+Route::get('maintenance/{schedule}/edit', [MaintenanceScheduleController::class, 'edit'])->name('maintenance.edit');
+Route::put('maintenance/{schedule}', [MaintenanceScheduleController::class, 'update'])->name('maintenance.update');
         Route::get('facility-maintenance/{facilityMaintenance}', [FacilityMaintenanceController::class, 'show'])->name('facility-maintenance.show');
         Route::post('facility-maintenance/{facilityMaintenance}/complete', [FacilityMaintenanceController::class, 'complete'])->name('facility-maintenance.complete');
+        Route::get('maintenance/{schedule}', [MaintenanceScheduleController::class, 'show'])->name('maintenance.show');
+        Route::delete('maintenance/{schedule}', [MaintenanceScheduleController::class, 'destroy'])->name('maintenance.destroy');
+        Route::delete('facility-maintenance/{facilityMaintenance}', [FacilityMaintenanceController::class, 'destroy'])->name('facility-maintenance.destroy');
     // Repairs
 
         Route::get('assets/{asset}/repairs/create', [RepairHistoryController::class, 'create'])->name('repairs.create');
@@ -68,6 +87,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('repair-history', [ReportController::class, 'repairHistory'])->name('repair-history');
         Route::get('asset-assignment', [ReportController::class, 'assetAssignment'])->name('asset-assignment');
         Route::get('annual-summary', [ReportController::class, 'annualSummary'])->name('annual-summary');
+        Route::get('monthly-summary', [ReportController::class, 'monthlySummary'])->name('monthly-summary');
         Route::get('damage-reports', [DamageReportController::class, 'index'])->name('damage.index');
         Route::get('damage-reports/create', [DamageReportController::class, 'create'])->name('damage.create');
         Route::post('damage-reports', [DamageReportController::class, 'store'])->name('damage.store');
@@ -79,6 +99,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('condition', [FacilityReportController::class, 'condition'])->name('condition');
         Route::get('department-distribution', [FacilityReportController::class, 'departmentDistribution'])->name('department-distribution');
         Route::get('maintenance-due', [FacilityReportController::class, 'maintenanceDue'])->name('maintenance-due');
+        Route::get('monthly-summary', [FacilityReportController::class, 'monthlySummary'])->name('monthly-summary');
+        Route::get('yearly-summary', [FacilityReportController::class, 'yearlySummary'])->name('yearly-summary');
     });
         Route::middleware(['auth'])->group(function () {
         Route::get('/executive/dashboard', [ExecutiveController::class, 'index'])->name('executive.dashboard');

@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
    ->withMiddleware(function (Middleware $middleware) {
-    $middleware->appendToGroup('web', \App\Http\Middleware\RestrictExecutiveWrites::class);
+    // $middleware->appendToGroup('web', \App\Http\Middleware\RestrictExecutiveWrites::class); // disabled — executives now have full CRUD
 })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

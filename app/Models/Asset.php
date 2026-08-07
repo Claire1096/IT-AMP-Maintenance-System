@@ -13,7 +13,7 @@ class Asset extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'asset_tag', 'name', 'category_id', 'brand', 'model', 'serial_number',
+        'asset_tag', 'name', 'category', 'type', 'brand', 'model', 'serial_number',
         'assigned_employee_id', 'department_id', 'location_id',
         'purchase_date', 'purchase_cost', 'warranty_expiration', 'supplier_id',
         'status', 'description', 'qr_code_path',
@@ -27,12 +27,12 @@ class Asset extends Model
 
     const STATUSES = ['active', 'under_repair', 'for_disposal', 'lost'];
 
-    // --- Relationships ---
+    const TYPES = [
+        'Electronics', 'Equipment', 'Tools', 'Supplies', 'Machinery',
+        'Building', 'Vehicle', 'Furniture', 'Software', 'Fixtures', 'Land',
+    ];
 
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(AssetCategory::class, 'category_id');
-    }
+    // --- Relationships ---
 
     public function assignedEmployee(): BelongsTo
     {
@@ -89,4 +89,3 @@ class Asset extends Model
             ->value('next_maintenance_date');
     }
 }
-

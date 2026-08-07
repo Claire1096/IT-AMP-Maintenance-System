@@ -10,7 +10,7 @@
 
     <div class="bg-rose-100 border-b border-rose-200 px-6 py-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold text-xs">EM</div>
+            <img src="{{ asset('logo.svg') }}" alt="EM Power Beautiful Skin" class="w-10 h-10 rounded-full object-cover"> 
             <div class="leading-tight">
                 <div class="font-semibold text-pink-700 text-sm">EM Power Beautiful Skin</div>
                 <div class="text-[10px] tracking-widest text-gray-400">CORPORATION</div>
@@ -68,6 +68,23 @@
                             <label class="block text-[10px] font-semibold text-gray-500 mb-1">ASSET NAME *</label>
                             <input type="text" name="name" value="{{ old('name', $asset->name) }}" required
                                    class="w-full text-xs border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-gray-500 mb-1">CATEGORY *</label>
+                            <input type="text" name="category" value="{{ old('category', $asset->category) }}" required
+                                   class="w-full text-xs border-gray-300 rounded-md">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-gray-500 mb-1">TYPE</label>
+                            <select name="type" class="w-full text-xs border-gray-300 rounded-md">
+                                <option value="">Select</option>
+                                @foreach ($assetTypes as $assetType)
+                                    <option value="{{ $assetType }}" @selected(old('type', $asset->type) === $assetType)>{{ $assetType }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div>
                             <label class="block text-[10px] font-semibold text-gray-500 mb-1">STATUS *</label>
@@ -187,4 +204,3 @@
     </div>
 </body>
 </html>
-

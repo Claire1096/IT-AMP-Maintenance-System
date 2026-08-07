@@ -57,12 +57,30 @@ class EmployeeController extends Controller
 
         $employee = Employee::create($validated);
 
-        // If this was submitted from a quick-add modal elsewhere in the app, go back there
         if ($request->filled('redirect_to') && str_starts_with($request->redirect_to, '/')) {
             return redirect($request->redirect_to)->with('success', "Employee \"{$employee->full_name}\" added.");
         }
 
         return redirect()->route('employees.index')->with('success', 'Employee added successfully.');
+    }
+
+    public function quickStore(Request $request)
+    {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'department_id' => 'nullable|exists:departments,id',
+            'position' => 'nullable|string|max:255',
+        ]);
+
+        $validated['is_active'] = true;
+
+        $employee = Employee::create($validated);
+
+        return response()->json([
+            'id' => $employee->id,
+            'name' => $employee->full_name,
+        ]);
     }
 
     public function edit(Employee $employee)

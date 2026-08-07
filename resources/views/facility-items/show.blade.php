@@ -9,11 +9,9 @@
             <p class="text-xs text-gray-400">Facility Inventory / Item details</p>
         </div>
        <div class="flex gap-2">
-    @unless (auth()->user()->role === 'executive')
         <a href="{{ route('facility-items.edit', $item) }}" class="px-4 py-1.5 bg-gray-200 text-gray-800 text-xs font-semibold rounded-full">EDIT</a>
         <a href="{{ route('facility-maintenance.create', ['item' => $item->id]) }}" class="px-4 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-full">SCHEDULE MAINTENANCE</a>
         <a href="{{ route('facility-items.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ ADD NEW</a>
-    @endunless
     <a href="{{ route('facility-items.index') }}" class="px-4 py-1.5 bg-pink-500 text-white text-xs font-semibold rounded-full">&#8249; BACK</a>
 </div>
     </div>

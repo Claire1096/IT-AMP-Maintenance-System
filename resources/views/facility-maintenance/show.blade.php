@@ -1,7 +1,5 @@
 @extends('layouts.shell')
-
 @section('title', 'Maintenance Details')
-
 @section('content')
     <div class="flex justify-between items-start mb-6">
         <div>
@@ -10,15 +8,12 @@
         </div>
         <a href="{{ route('facility-maintenance.index') }}" class="px-4 py-1.5 bg-pink-500 text-white text-xs font-semibold rounded-full">&#8249; BACK</a>
     </div>
-
     @if (session('success'))
         <div class="mb-4 p-3 bg-green-100 text-green-800 rounded-md text-xs">{{ session('success') }}</div>
     @endif
-
     <div class="grid grid-cols-2 gap-6">
         <div class="bg-white border border-rose-100 rounded-xl p-5 shadow-sm">
             <h2 class="text-xs font-bold text-pink-600 uppercase mb-4">&#128221; Maintenance Details</h2>
-
             <div class="mb-3">
                 <div class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Asset</div>
                 <div class="text-xs text-gray-700">
@@ -31,7 +26,6 @@
                     @endif
                 </div>
             </div>
-
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div>
                     <div class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Maintenance Type</div>
@@ -42,7 +36,6 @@
                     <div class="text-xs text-gray-700">{{ $maintenance->priority ? ucfirst($maintenance->priority) : '—' }}</div>
                 </div>
             </div>
-
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div>
                     <div class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Schedule Date</div>
@@ -53,7 +46,6 @@
                     <div class="text-xs text-gray-700">{{ $maintenance->scheduled_time ?? '—' }}</div>
                 </div>
             </div>
-
             <div class="mb-3">
                 <div class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Status</div>
                 <span @class([
@@ -65,24 +57,19 @@
                     {{ strtoupper($maintenance->status) }}
                 </span>
             </div>
-
             <div>
                 <div class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Description / Remarks</div>
                 <div class="text-xs text-gray-700">{{ $maintenance->notes ?: '—' }}</div>
             </div>
         </div>
-
         <div class="bg-white border border-rose-100 rounded-xl p-5 shadow-sm flex flex-col justify-between">
             <div>
                 <h2 class="text-xs font-bold text-pink-600 uppercase mb-4">&#128100; Tech Assignment</h2>
-
                 <div class="mb-4">
                     <div class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Technician</div>
                     <div class="text-xs text-gray-700">{{ $maintenance->technician ?: '—' }}</div>
                 </div>
-
                 <h3 class="text-xs font-bold text-pink-600 uppercase mb-3">&#9989; Checklist</h3>
-
                 <div class="space-y-2 mb-3">
                     @forelse ($maintenance->checklist ?? [] as $checkItem)
                         <div class="flex items-center gap-2 text-xs text-gray-600">
@@ -92,7 +79,6 @@
                         <div class="text-xs text-gray-400">No checklist items recorded.</div>
                     @endforelse
                 </div>
-
                 @if ($maintenance->completed_date)
                     <div class="mt-4">
                         <div class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Completed On</div>
@@ -100,7 +86,6 @@
                     </div>
                 @endif
             </div>
-
             @if ($maintenance->status !== 'done')
                 <div class="text-right mt-4">
                     <form method="POST" action="{{ route('facility-maintenance.complete', $maintenance) }}">

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    private array $roles = ['it', 'executive', 'facility_manager'];
+    private array $roles = ['it', 'executive', 'facility_manager', 'finance_supervisor'];
     private array $employmentTypes = ['intern', 'employee'];
 
     public function create()

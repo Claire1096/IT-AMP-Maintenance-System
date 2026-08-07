@@ -27,7 +27,7 @@ class DamageReportController extends Controller
             'causes' => $this->causes,
             'actions' => $this->actions,
             'facilityItems' => FacilityItem::orderBy('name')->get(['id', 'name', 'item_tag', 'asset_type']),
-            'assets' => Asset::with('category')->orderBy('name')->get(['id', 'name', 'asset_tag', 'category_id']),
+            'assets' => Asset::orderBy('name')->get(['id', 'name', 'asset_tag', 'category']),
         ]);
     }
 
@@ -53,10 +53,11 @@ class DamageReportController extends Controller
             'condition' => 'nullable|string|max:255',
             'estimated_cost' => 'nullable|numeric|min:0',
             'remarks' => 'nullable|string',
-            'facilitator_name' => 'nullable|string|max:255',
+            
             'facilitator_date' => 'nullable|date',
         ]);
 
+        $validated['facilitator_name'] = 'Michael Bernardo';
         $validated['report_number'] = 'DR-' . now()->year . '-' . str_pad(DamageReport::whereYear('created_at', now()->year)->count() + 1, 4, '0', STR_PAD_LEFT);
 
         $report = DamageReport::create($validated);

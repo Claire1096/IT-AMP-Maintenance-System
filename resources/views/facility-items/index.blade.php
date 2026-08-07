@@ -8,47 +8,14 @@
             <h1 class="text-lg font-bold">FACILITY INVENTORY</h1>
             <p class="text-xs text-gray-400">General facility physical inventory tracking</p>
         </div>
-        @unless (auth()->user()->role === 'executive')
             <a href="{{ route('facility-items.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ ADD ITEM</a>
-        @endunless
     </div>
 
     @if (session('success'))
         <div class="mb-4 p-3 bg-green-100 text-green-800 rounded-md text-xs">{{ session('success') }}</div>
     @endif
 
-    <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-            <div class="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center text-lg">&#128230;</div>
-            <div>
-                <div class="text-[10px] font-semibold text-gray-500 uppercase">Total</div>
-                <div class="text-xl font-bold">{{ $stats['total'] }}</div>
-            </div>
-        </div>
-        <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-            <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-lg">&#9989;</div>
-            <div>
-                <div class="text-[10px] font-semibold text-gray-500 uppercase">In Use</div>
-                <div class="text-xl font-bold">{{ $stats['in_use'] }}</div>
-            </div>
-        </div>
-        <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-            <div class="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center text-lg">&#128230;</div>
-            <div>
-                <div class="text-[10px] font-semibold text-gray-500 uppercase">In Storage</div>
-                <div class="text-xl font-bold">{{ $stats['in_storage'] }}</div>
-            </div>
-        </div>
-        <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-            <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center text-lg">&#9888;</div>
-            <div>
-                <div class="text-[10px] font-semibold text-gray-500 uppercase">Damaged</div>
-                <div class="text-xl font-bold">{{ $stats['damaged'] }}</div>
-            </div>
-        </div>
-    </div>
-
-    <form method="GET" class="bg-white border border-rose-100 p-5 rounded-xl shadow-sm mb-6">
+    <form id="facility-filter-form" method="GET" class="bg-white border border-rose-100 p-5 rounded-xl shadow-sm mb-6">
         <h2 class="text-xs font-bold text-gray-500 uppercase mb-3">&#128269; Filter Items</h2>
         <div class="grid grid-cols-5 gap-4 mb-4">
             <div>
@@ -70,15 +37,6 @@
                 </select>
             </div>
             <div>
-                <label class="block text-[10px] font-semibold text-gray-500 mb-1">DEPARTMENT</label>
-                <select name="department_id" class="w-full text-xs border-gray-300 rounded-md">
-                    <option value="">All Departments</option>
-                    @foreach ($departments as $department)
-                        <option value="{{ $department->id }}" @selected(request('department_id') == $department->id)>{{ $department->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
                 <label class="block text-[10px] font-semibold text-gray-500 mb-1">STATUS</label>
                 <select name="status" class="w-full text-xs border-gray-300 rounded-md">
                     <option value="">All Status</option>
@@ -88,89 +46,95 @@
                 </select>
             </div>
             <div>
+                <label class="block text-[10px] font-semibold text-gray-500 mb-1">LOCATION</label>
+                <select name="location_id" class="w-full text-xs border-gray-300 rounded-md">
+                    <option value="">All Locations</option>
+                    @foreach ($locations as $location)
+                        <option value="{{ $location->id }}" @selected(request('location_id') == $location->id)>
+                            {{ $location->building->name ?? '' }} — {{ $location->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
                 <label class="block text-[10px] font-semibold text-gray-500 mb-1">SEARCH</label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Tag or name..." class="w-full text-xs border-gray-300 rounded-md">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Tag or name..." class="w-full text-xs border-gray-300 rounded-md" autocomplete="off">
             </div>
         </div>
         <div class="flex justify-end gap-2">
-            <a href="{{ route('facility-items.index') }}" class="px-4 py-2 border border-gray-300 text-gray-600 text-xs font-semibold rounded-full">CLEAR FILTERS</a>
+            <a href="{{ route('facility-items.index') }}" id="facility-clear-filters" class="px-4 py-2 border border-gray-300 text-gray-600 text-xs font-semibold rounded-full">CLEAR FILTERS</a>
             <button type="submit" class="px-4 py-2 bg-pink-600 text-white text-xs font-semibold rounded-full">+ APPLY FILTERS</button>
         </div>
     </form>
 
-    <div class="mt-6 mb-4 flex justify-end items-center gap-3 pr-2">
-    @if ($items->onFirstPage())
-        <span class="w-14 h-11 flex items-center justify-center rounded-full bg-[#13000A] text-white text-lg opacity-40 cursor-not-allowed">&#8249;</span>
-    @else
-        <a href="{{ $items->previousPageUrl() }}" class="w-14 h-11 flex items-center justify-center rounded-full bg-[#13000A] text-white text-lg hover:opacity-80">&#8249;</a>
-    @endif
-
-    <span class="w-14 h-11 flex items-center justify-center rounded-full border-2 border-gray-300 text-sm font-bold">{{ $items->currentPage() }}</span>
-
-    @if ($items->hasMorePages())
-        <a href="{{ $items->nextPageUrl() }}" class="w-14 h-11 flex items-center justify-center rounded-full bg-[#13000A] text-white text-lg hover:opacity-80">&#8250;</a>
-    @else
-        <span class="w-14 h-11 flex items-center justify-center rounded-full bg-[#13000A] text-white text-lg opacity-40 cursor-not-allowed">&#8250;</span>
-    @endif
-</div>
-
-    <div class="bg-white border border-rose-100 overflow-hidden shadow-sm rounded-xl">
-        <table class="min-w-full divide-y divide-rose-100 text-xs">
-            <thead class="bg-pink-100">
-                <tr class="text-left font-semibold text-gray-700 uppercase tracking-wider">
-                    <th class="px-4 py-3">Item Tag</th>
-                    <th class="px-4 py-3">Name</th>
-                    <th class="px-4 py-3">Category</th>
-                    <th class="px-4 py-3">Asset Type</th>
-                    <th class="px-4 py-3">Qty</th>
-                    <th class="px-4 py-3">Department</th>
-                    <th class="px-4 py-3">Condition</th>
-                    <th class="px-4 py-3">Location</th>
-                    <th class="px-4 py-3">Action</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-rose-50">
-                @forelse ($items as $item)
-                    <tr class="hover:bg-rose-50">
-                        <td class="px-4 py-3 font-mono">{{ $item->item_tag }}</td>
-                        <td class="px-4 py-3">{{ $item->name }}</td>
-                        <td class="px-4 py-3">{{ ucwords(str_replace('_', ' ', $item->category)) }}</td>
-                        <td class="px-4 py-3">{{ $item->asset_type ? ucfirst($item->asset_type) : '—' }}</td>
-                        <td class="px-4 py-3">{{ $item->quantity }}</td>
-                        <td class="px-4 py-3">{{ $item->department->name ?? '—' }}</td>
-                        <td class="px-4 py-3">
-                            <span @class([
-                                'px-2 py-1 rounded-full font-semibold text-[10px]',
-                                'bg-green-500 text-white' => $item->condition === 'good',
-                                'bg-yellow-500 text-white' => $item->condition === 'fair',
-                                'bg-red-500 text-white' => $item->condition === 'poor',
-                            ])>
-                                {{ strtoupper($item->condition) }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3">
-                            {{ $item->location ? ($item->location->building ? $item->location->building->name . ' — ' . $item->location->name : $item->location->name) : '—' }}
-                         </td>
-                        <td class="px-4 py-3">
-                            <div class="flex gap-2">
-                                <a href="{{ route('facility-items.edit', $item) }}" title="Edit">&#9998;</a>
-                                <a href="{{ route('facility-items.show', $item) }}" title="View">&#128065;</a>
-                                <form method="POST" action="{{ route('facility-items.destroy', $item) }}" onsubmit="return confirm('Remove this item?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" title="Delete">&#128465;</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="8" class="px-4 py-8 text-center text-gray-400">
-                            No facility items registered yet. <a href="{{ route('facility-items.create') }}" class="text-pink-600 hover:underline">Register the first one.</a>
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div id="facility-results">
+        @include('facility-items._results')
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        const form = document.getElementById('facility-filter-form');
+        const resultsContainer = document.getElementById('facility-results');
+        const clearBtn = document.getElementById('facility-clear-filters');
+        let debounceTimer = null;
+
+        function loadUrl(url) {
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then((res) => res.text())
+                .then((html) => {
+                    resultsContainer.innerHTML = html;
+                    window.history.replaceState(null, '', url);
+                })
+                .catch((err) => console.error('Facility items fetch failed:', err));
+        }
+
+        function runSearch() {
+            const params = new URLSearchParams(new FormData(form)).toString();
+            // Always use the clean path, never form.action or window.location.href —
+            // both default to the full current URL (query string included), which
+            // caused filters to pile up on top of each other on every keystroke.
+            loadUrl(`{{ route('facility-items.index') }}?${params}`);
+        }
+
+        // Text input: debounce as the user types.
+        form.querySelectorAll('input[type="text"]').forEach((input) => {
+            input.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(runSearch, 350);
+            });
+        });
+
+        // Selects: filter immediately on change.
+        form.querySelectorAll('select').forEach((select) => {
+            select.addEventListener('change', runSearch);
+        });
+
+        // "Apply Filters" via AJAX instead of a full reload.
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            runSearch();
+        });
+
+        // "Clear filters" resets fields then re-runs the search.
+        clearBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            form.reset();
+            runSearch();
+        });
+
+        // Pagination links live inside the swapped-in partial, so listen on the
+        // container itself (delegation) rather than on the links directly.
+        resultsContainer.addEventListener('click', (e) => {
+            const link = e.target.closest('[data-page-link]');
+            if (!link) return;
+
+            e.preventDefault();
+            loadUrl(link.href);
+        });
+    })();
+</script>
+@endpush

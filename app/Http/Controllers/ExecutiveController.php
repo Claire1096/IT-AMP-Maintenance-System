@@ -10,7 +10,7 @@ class ExecutiveController extends Controller
     public function index()
     {
         $totalItAssets = Asset::count();
-        $itAssets = Asset::with(['category', 'assignedEmployee', 'department'])
+        $itAssets = Asset::with([ 'assignedEmployee', 'department'])
             ->latest()
             ->take(5)
             ->get();

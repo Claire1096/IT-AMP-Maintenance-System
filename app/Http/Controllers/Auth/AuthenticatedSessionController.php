@@ -40,6 +40,7 @@ class AuthenticatedSessionController extends Controller
             'facility_manager' => route('facility-items.index', absolute: false),
             'it' => route('dashboard', absolute: false),
             'executive' => route('executive.dashboard', absolute: false),
+            'finance_supervisor' => route('audit.index', absolute: false),
             default => route('dashboard', absolute: false),
         };
     }

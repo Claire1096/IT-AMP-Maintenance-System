@@ -11,12 +11,13 @@ class PositionSeeder extends Seeder
     public function run(): void
     {
         $map = [
-            'IT Department' => ['IT Support', 'System Administrator', 'Network Engineer', 'IT Manager'],
-            'Human Resources' => ['HR Assistant', 'HR Generalist', 'Recruiter', 'HR Manager'],
-            'Sales & Marketing' => ['Sales Associate', 'Marketing Coordinator', 'Account Executive', 'Sales Manager'],
-            'Operations' => ['Operations Staff', 'Operations Supervisor', 'Operations Manager'],
-            'Finance & Accounting' => ['Accounting Clerk', 'Accountant', 'Finance Analyst', 'Finance Manager'],
-            'Logistics' => ['Warehouse Staff', 'Logistics Coordinator', 'Logistics Manager'],
+            'IT DEPT' => ['IT Support', 'System Administrator', 'Network Engineer', 'IT Manager'],
+            'HUMAN RESOURCE' => ['HR Assistant', 'HR Generalist', 'Recruiter', 'HR Manager'],
+            'SALES AND MARKETING' => ['Sales Associate', 'Marketing Coordinator', 'Account Executive', 'Sales Manager'],
+            'PRODUCTION' => ['Production Staff', 'Production Supervisor', 'Production Manager'],
+            'FINANCE AND ACCOUNTING' => ['Accounting Clerk', 'Accountant', 'Finance Analyst', 'Finance Manager'],
+            'LOGISTICS' => ['Warehouse Staff', 'Logistics Coordinator', 'Logistics Manager'],
+            'EXECUTIVES' => ['Executive Assistant', 'Director', 'Vice President'],
         ];
 
         foreach ($map as $deptName => $titles) {

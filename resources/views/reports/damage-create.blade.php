@@ -23,6 +23,7 @@
 
     <form method="POST" action="{{ route('reports.damage.store') }}">
         @csrf
+        <input type="hidden" name="facilitator_name" value="Michael Bernardo">
         <div class="grid grid-cols-3 gap-6">
 
             <div class="col-span-2 bg-white border border-rose-100 rounded-xl p-6 shadow-sm">
@@ -105,10 +106,6 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[10px] font-semibold text-gray-500 mb-1">FACILITATOR NAME</label>
-                        <input type="text" name="facilitator_name" value="{{ old('facilitator_name') }}" class="w-full text-xs border-gray-300 rounded-md">
-                    </div>
                     <div>
                         <label class="block text-[10px] font-semibold text-gray-500 mb-1">DATE</label>
                         <input type="date" name="facilitator_date" value="{{ old('facilitator_date') }}" class="w-full text-xs border-gray-300 rounded-md">
@@ -206,7 +203,7 @@
                     opt.textContent = `${asset.asset_tag} — ${asset.name}`;
                     opt.dataset.tag = asset.asset_tag;
                     opt.dataset.name = asset.name;
-                    opt.dataset.type = asset.category ? asset.category.name : '';
+                    opt.dataset.type = asset.category || '';
                     opt.dataset.kind = 'asset';
                     assetSelect.appendChild(opt);
                 });

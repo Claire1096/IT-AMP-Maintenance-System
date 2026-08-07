@@ -12,12 +12,13 @@ class FacilityItem extends Model
 
     protected $fillable = [
         'item_tag', 'name', 'brand', 'category', 'asset_type', 'building_structure', 'description', 'quantity',
-        'department_id', 'location_id', 'condition', 'status',
+        'department_id', 'location_id', 'condition', 'status', 'missing_since',
         'purchase_date', 'purchase_cost', 'supplier_id', 'qr_code_path',
     ];
 
     protected $casts = [
         'purchase_date' => 'date',
+        'missing_since' => 'datetime',
     ];
 
     public function department()
@@ -34,8 +35,9 @@ class FacilityItem extends Model
     {
         return $this->belongsTo(Supplier::class);
     }
+
     public function maintenances()
-{
-    return $this->hasMany(FacilityMaintenance::class);
-}
+    {
+        return $this->hasMany(FacilityMaintenance::class);
+    }
 }

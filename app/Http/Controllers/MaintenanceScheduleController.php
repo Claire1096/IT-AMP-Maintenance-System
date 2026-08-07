@@ -19,7 +19,7 @@ class MaintenanceScheduleController extends Controller
                   ->whereYear('next_maintenance_date', now()->year);
             })
             ->orderBy('next_maintenance_date')
-            ->paginate(20);
+            ->paginate(12);
 
         return view('maintenance.index', compact('schedules'));
     }
@@ -64,9 +64,77 @@ class MaintenanceScheduleController extends Controller
         return redirect()->route('assets.show', $asset)->with('success', 'Maintenance scheduled.');
     }
 
-    /**
-     * Mark a scheduled maintenance as completed, roll forward the next date if recurring.
-     */
+    public function edit(MaintenanceSchedule $schedule)
+    {
+        $schedule->load('checklistItems');
+
+        return view('maintenance.edit', [
+            'schedule' => $schedule,
+            'technicians' => \App\Models\User::whereIn('role', ['technician', 'admin'])->orderBy('name')->get(),
+        ]);
+    }
+
+    public function update(Request $request, MaintenanceSchedule $schedule)
+    {
+        $validated = $request->validate([
+            'maintenance_type' => 'required|string|max:255',
+            'frequency' => 'required|in:one_time,monthly,quarterly,semi_annual,annual',
+            'scheduled_date' => 'required|date',
+            'assigned_technician_id' => 'nullable|exists:users,id',
+            'checklist_items' => 'nullable|array',
+            'checklist_items.*.task_description' => 'nullable|string|max:255',
+            'checklist_items.*._delete' => 'nullable|boolean',
+            'new_checklist' => 'nullable|array',
+            'new_checklist.*' => 'nullable|string|max:255',
+        ]);
+
+        $schedule->update([
+            'maintenance_type' => $validated['maintenance_type'],
+            'frequency' => $validated['frequency'],
+            'scheduled_date' => $validated['scheduled_date'],
+            'next_maintenance_date' => $validated['scheduled_date'],
+            'assigned_technician_id' => $validated['assigned_technician_id'] ?? null,
+        ]);
+
+        foreach ($validated['checklist_items'] ?? [] as $itemId => $itemData) {
+            if (!empty($itemData['_delete'])) {
+                MaintenanceChecklistItem::where('id', $itemId)
+                    ->where('maintenance_schedule_id', $schedule->id)
+                    ->delete();
+            } elseif (!empty($itemData['task_description'])) {
+                MaintenanceChecklistItem::where('id', $itemId)
+                    ->where('maintenance_schedule_id', $schedule->id)
+                    ->update(['task_description' => $itemData['task_description']]);
+            }
+        }
+
+        $sortOrder = ($schedule->checklistItems()->max('sort_order') ?? -1) + 1;
+        foreach ($validated['new_checklist'] ?? [] as $task) {
+            if (trim((string) $task) !== '') {
+                MaintenanceChecklistItem::create([
+                    'maintenance_schedule_id' => $schedule->id,
+                    'task_description' => $task,
+                    'sort_order' => $sortOrder++,
+                ]);
+            }
+        }
+
+        return redirect()->route('maintenance.index')->with('success', 'Maintenance schedule updated.');
+    }
+
+    public function show(MaintenanceSchedule $schedule)
+    {
+        $schedule->load(['asset', 'technician', 'checklistItems']);
+
+        return view('maintenance.show', ['schedule' => $schedule]);
+    }
+
+    public function destroy(MaintenanceSchedule $schedule)
+    {
+        $schedule->delete();
+
+        return redirect()->route('maintenance.index')->with('success', 'Maintenance schedule removed.');
+    }
     public function complete(Request $request, MaintenanceSchedule $schedule)
     {
         $validated = $request->validate([
@@ -111,4 +179,3 @@ class MaintenanceScheduleController extends Controller
             ->update(['status' => 'overdue']);
     }
 }
-

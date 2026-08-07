@@ -1,45 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .print-full { grid-column: 1 / -1 !important; width: 100% !important; }
+            body { background: white !important; font-size: 9px !important; }
+            table { font-size: 9px !important; }
+            table th, table td { padding: 2px 4px !important; line-height: 1.2 !important; }
+            .rounded-xl, .rounded-full, .rounded-lg, .rounded-md { border-radius: 0 !important; }
+            .shadow-sm { box-shadow: none !important; }
+            .p-8, .p-6, .p-5 { padding: 8px !important; }
+            .mb-6, .mb-4 { margin-bottom: 6px !important; }
+            @page { size: landscape; margin: 8mm; }
+        }
+    </style>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Dashboard') — EM Power Beautiful Skin</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head-scripts')
 </head>
 <body class="bg-rose-50 text-gray-800 text-sm">
 
-    <div class="bg-rose-100 border-b border-rose-200 px-6 py-3 flex items-center justify-between">
-        @php
-    $homeRoute = in_array(auth()->user()->role ?? null, ['facility_manager'])
-        ? route('facility-items.index')
-        : (in_array(auth()->user()->role ?? null, ['it']) ? route('dashboard') : (auth()->user()->role === 'executive' ? route('executive.dashboard') : url('/')));
+    <div class="no-print bg-rose-100 border-b border-rose-200 px-6 py-3 flex items-center justify-between">
+    @php
+    $homeRoute = match (auth()->user()->role ?? null) {
+        'facility_manager' => route('facility-items.index'),
+        'finance_supervisor' => route('audit.index'),
+        'it' => route('dashboard'),
+        'executive' => route('executive.dashboard'),
+        default => url('/'),
+    };
 @endphp
 <a href="{{ $homeRoute }}" class="flex items-center gap-2">
-    <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold text-xs">EM</div>
+    <img src="{{ asset('logo.svg') }}" alt="EM Power Beautiful Skin" class="w-10 h-10 rounded-full object-cover">
     <div class="leading-tight">
-        <div class="font-semibold text-pink-700 text-sm">EM Power Beautiful Skin</div>
+        <div class="text-xl font-bold text-gray-800">E<span class="text-pink-600">M</span> Power Beautiful Skin Corporation</div>
         <div class="text-[10px] tracking-widest text-gray-400">CORPORATION</div>
     </div>
 </a>
         <div class="flex items-center gap-4">
-            <div class="relative" id="global-search-wrapper" style="min-width: 280px;">
-                <div class="flex items-center border border-gray-400 rounded-full px-4 py-2 bg-white">
-                    <input
-                        type="text"
-                        id="global-search-input"
-                        placeholder="search something...."
-                        class="outline-none border-0 ring-0 focus:ring-0 focus:outline-none text-xs w-full text-gray-700 placeholder-gray-400 bg-transparent"
-                        autocomplete="off"
-                    >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.35-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-            <div id="global-search-results"
-                class="absolute mt-1 w-72 right-0 bg-white border border-gray-200 rounded-lg shadow-lg hidden z-50 max-h-96 overflow-y-auto">
-            </div>
-        </div>
            <div class="relative" id="notification-wrapper">
     <button type="button" id="notification-bell" class="relative text-gray-400 hover:text-gray-600">
         &#128276;
@@ -54,7 +56,7 @@
     </div>
 
     <div class="flex">
-        <div class="w-48 bg-rose-50 border-r border-rose-200 min-h-screen py-4 px-3 space-y-1">
+        <div class="no-print w-48 bg-rose-50 border-r border-rose-200 min-h-screen py-4 px-3 space-y-1">
     @php $role = auth()->user()->role ?? null; @endphp
 
     @if (in_array($role, ['it']))
@@ -84,6 +86,18 @@
     </a>
     <a href="{{ route('reports.damage.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('reports.damage.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
         <span>&#128196;</span> Reports
+    </a>
+@endif
+
+@if (in_array($role, ['finance_supervisor']))
+    <a href="{{ route('audit.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('audit.index') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#128269;</span> Audit
+    </a>
+    <a href="{{ route('audit-reports.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('audit-reports.index') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#128196;</span> Audit Reports
+    </a>
+    <a href="{{ route('finance-counts.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('finance-counts.*') ? 'bg-orange-200 text-gray-800' : 'text-gray-600 hover:bg-rose-100' }}">
+        <span>&#128203;</span> Monthly Counts
     </a>
 @endif
 

@@ -46,12 +46,10 @@ class DashboardController extends Controller
             ->groupBy('month')
             ->orderBy('month')
             ->get();
-
-        $assetsByCategory = Asset::selectRaw('category_id, COUNT(*) as total')
-            ->with('category:id,name')
-            ->groupBy('category_id')
+        $assetsByCategory = Asset::selectRaw('category, COUNT(*) as total')
+            ->groupBy('category')
             ->get();
-
+            
         return view('dashboard', compact(
             'totalAssets', 'activeAssets', 'underRepair', 'forDisposal', 'lost',
             'warrantyExpiringSoon', 'warrantyExpired', 'maintenanceDueThisMonth',

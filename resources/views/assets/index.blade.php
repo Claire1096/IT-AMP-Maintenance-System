@@ -7,63 +7,20 @@
                     <h1 class="text-lg font-bold">ASSET MANAGEMENT</h1>
                     <p class="text-xs text-gray-400">All registered assets</p>
                 </div>
-                @unless (auth()->user()->role === 'executive')
                     <a href="{{ route('assets.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ ADD ASSET</a>
-                @endunless
             </div>
 
             @if (session('success'))
                 <div class="mb-4 p-3 bg-green-100 text-green-800 rounded-md text-xs">{{ session('success') }}</div>
             @endif
 
-            {{-- KPI cards --}}
-            <div class="grid grid-cols-4 gap-4 mb-6">
-                <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-                    <div class="w-10 h-10 rounded-lg bg-pink-100 flex items-center justify-center text-lg">&#128187;</div>
-                    <div>
-                        <div class="text-[10px] font-semibold text-gray-500 uppercase">Total Assets</div>
-                        <div class="text-xl font-bold">{{ $stats['total'] }}</div>
-                        <div class="text-[10px] text-gray-400">All registered assets</div>
-                    </div>
-                </div>
-                <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-                    <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-lg">&#9989;</div>
-                    <div>
-                        <div class="text-[10px] font-semibold text-gray-500 uppercase">Active Assets</div>
-                        <div class="text-xl font-bold">{{ $stats['active'] }}</div>
-                        <div class="text-[10px] text-gray-400">All active assets</div>
-                    </div>
-                </div>
-                <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-                    <div class="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center text-lg">&#128295;</div>
-                    <div>
-                        <div class="text-[10px] font-semibold text-gray-500 uppercase">Under Repair</div>
-                        <div class="text-xl font-bold">{{ $stats['under_repair'] }}</div>
-                        <div class="text-[10px] text-gray-400">All under repair assets</div>
-                    </div>
-                </div>
-                <div class="bg-white border border-rose-100 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-                    <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center text-lg">&#128737;</div>
-                    <div>
-                        <div class="text-[10px] font-semibold text-gray-500 uppercase">Expiring Soon</div>
-                        <div class="text-xl font-bold">{{ $stats['expiring_soon'] }}</div>
-                        <div class="text-[10px] text-gray-400">Warranty within 30 days</div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Filters --}}
-            <form method="GET" class="bg-white border border-rose-100 p-5 rounded-xl shadow-sm mb-6">
+            <form id="asset-filter-form" method="GET" class="bg-white border border-rose-100 p-5 rounded-xl shadow-sm mb-6">
                 <h2 class="text-xs font-bold text-gray-500 uppercase mb-3">&#128269; Filter Assets</h2>
                 <div class="grid grid-cols-4 gap-4 mb-4">
                     <div>
-                        <label class="block text-[10px] font-semibold text-gray-500 mb-1">CATEGORY</label>
-                        <select name="category_id" class="w-full text-xs border-gray-300 rounded-md">
-                            <option value="">All Categories</option>
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>{{ $category->name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="block text-[10px] font-semibold text-gray-500 mb-1">SEARCH</label>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search asset, category, name, department, location, status.."
+                               class="w-full text-xs border-gray-300 rounded-md" autocomplete="off">
                     </div>
                     <div>
                         <label class="block text-[10px] font-semibold text-gray-500 mb-1">DEPARTMENT</label>
@@ -96,77 +53,91 @@
                     </div>
                 </div>
                 <div class="flex justify-end gap-2">
-                    <a href="{{ route('assets.index') }}" class="px-4 py-2 border border-gray-300 text-gray-600 text-xs font-semibold rounded-full">CLEAR FILTERS</a>
+                    <a href="{{ route('assets.index') }}" id="asset-clear-filters" class="px-4 py-2 border border-gray-300 text-gray-600 text-xs font-semibold rounded-full">CLEAR FILTERS</a>
                     <button type="submit" class="px-4 py-2 bg-pink-600 text-white text-xs font-semibold rounded-full">+ APPLY FILTERS</button>
                 </div>
             </form>
 
-            {{-- Table --}}
-            <div class="bg-white border border-rose-100 overflow-hidden shadow-sm rounded-xl">
-                <table class="min-w-full divide-y divide-rose-100 text-xs">
-                    <thead class="bg-pink-100">
-                        <tr class="text-left font-semibold text-gray-700 uppercase tracking-wider">
-                            <th class="px-4 py-3">Asset No.</th>
-                            <th class="px-4 py-3">Category</th>
-                            <th class="px-4 py-3">Assigned To</th>
-                            <th class="px-4 py-3">Department</th>
-                            <th class="px-4 py-3">Location</th>
-                            <th class="px-4 py-3">Purchase Date</th>
-                            <th class="px-4 py-3">Expiration</th>
-                            <th class="px-4 py-3">Status</th>
-                            <th class="px-4 py-3">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-rose-50">
-                        @forelse ($assets as $asset)
-                            <tr class="hover:bg-rose-50">
-                                <td class="px-4 py-3 font-mono">{{ $asset->asset_tag }}</td>
-                                <td class="px-4 py-3">{{ $asset->category->name ?? '—' }}</td>
-                                <td class="px-4 py-3">{{ $asset->assignedEmployee->full_name ?? '—' }}</td>
-                                <td class="px-4 py-3">{{ $asset->department->name ?? '—' }}</td>
-                                <td class="px-4 py-3">{{ $asset->location->name ?? '—' }}</td>
-                                <td class="px-4 py-3">{{ optional($asset->purchase_date)->format('m - d - y') }}</td>
-                                <td class="px-4 py-3">{{ optional($asset->warranty_expiration)->format('m - d - y') }}</td>
-                                <td class="px-4 py-3">
-                                    <span @class([
-                                        'px-2 py-1 rounded-full font-semibold text-[10px]',
-                                        'bg-green-500 text-white' => $asset->status === 'active',
-                                        'bg-yellow-500 text-white' => $asset->status === 'under_repair',
-                                        'bg-gray-400 text-white' => $asset->status === 'for_disposal',
-                                        'bg-red-500 text-white' => $asset->status === 'lost',
-                                    ])>
-                                        {{ strtoupper(str_replace('_', ' ', $asset->status)) }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3">
-                                   <div class="flex gap-2">
-    @unless (auth()->user()->role === 'executive')
-        <a href="{{ route('assets.edit', $asset) }}" title="Edit">&#9998;</a>
-    @endunless
-    <a href="{{ route('assets.show', $asset) }}" title="View">&#128065;</a>
-    @unless (auth()->user()->role === 'executive')
-        <form method="POST" action="{{ route('assets.destroy', $asset) }}" onsubmit="return confirm('Remove this asset?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit" title="Delete">&#128465;</button>
-        </form>
-    @endunless
-</div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="9" class="px-4 py-8 text-center text-gray-400">
-                                    No assets registered yet. <a href="{{ route('assets.create') }}" class="text-pink-600 hover:underline">Register the first one.</a>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-4">
-                {{ $assets->withQueryString()->links() }}
+            <div id="asset-results">
+                @include('assets._results')
             </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        const form = document.getElementById('asset-filter-form');
+        const resultsContainer = document.getElementById('asset-results');
+        const clearBtn = document.getElementById('asset-clear-filters');
+        let debounceTimer = null;
+
+        function loadUrl(url) {
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then((res) => res.text())
+                .then((html) => {
+                    resultsContainer.innerHTML = html;
+                    window.history.replaceState(null, '', url);
+                })
+                .catch((err) => console.error('Asset search failed:', err));
+        }
+
+        function runSearch() {
+            const params = new URLSearchParams(new FormData(form)).toString();
+            // Always build off the fixed route, never form.action or window.location —
+            // both default to the full current URL (query string included), which
+            // caused filters to pile up on top of each other on every keystroke.
+            loadUrl(`{{ route('assets.index') }}?${params}`);
+        }
+
+        // Text inputs: debounce as the user types.
+        form.querySelectorAll('input[type="text"]').forEach((input) => {
+            input.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(runSearch, 350);
+            });
+        });
+
+        // Selects: filter immediately on change, no need to debounce.
+        form.querySelectorAll('select').forEach((select) => {
+            select.addEventListener('change', runSearch);
+        });
+
+        // Keep the "Apply Filters" button working, but via AJAX instead of a full reload.
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            runSearch();
+        });
+
+        // "Clear filters" resets fields then re-runs the search instead of a full page nav.
+        clearBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            form.reset();
+            runSearch();
+        });
+
+        // Pagination links (Laravel's default paginator markup) live inside the
+        // swapped-in partial, so listen on the container itself (delegation).
+        // Any link whose href contains a "page" query param is treated as pagination;
+        // everything else (asset row Edit/View links, etc.) navigates normally.
+        resultsContainer.addEventListener('click', (e) => {
+            const link = e.target.closest('a[href]');
+            if (!link) return;
+
+            let linkUrl;
+            try {
+                linkUrl = new URL(link.href, window.location.origin);
+            } catch (err) {
+                return;
+            }
+
+            if (!linkUrl.searchParams.has('page')) return;
+
+            e.preventDefault();
+            loadUrl(link.href);
+        });
+    })();
+</script>
+@endpush

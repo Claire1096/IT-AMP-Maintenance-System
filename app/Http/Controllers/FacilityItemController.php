@@ -14,17 +14,18 @@ class FacilityItemController extends Controller
     private array $categories = ['Facility and Maintenance'];
     private array $assetTypes = ['tools', 'supplies', 'equipment', 'electronics', 'furniture', 'vehicles', 'machinery'];
     private array $buildingStructures = ['doors', 'windows', 'walls', 'flooring', 'light', 'switch', 'outlet', 'roof', 'gate', 'water tank'];
-    private array $statuses = ['in_use', 'in_storage', 'damaged', 'disposed'];
+    private array $statuses = ['in_use', 'in_storage', 'damaged', 'disposed', 'missing'];
     private array $conditions = ['good', 'fair', 'poor'];
 
     public function index(Request $request)
 {
     $items = FacilityItem::query()
-        ->with(['department', 'location'])
+        ->with(['department', 'location', 'maintenances' => fn ($q) => $q->where('status', 'overdue')])
         ->when($request->category, fn ($q) => $q->where('category', $request->category))
         ->when($request->asset_type, fn ($q) => $q->where('asset_type', $request->asset_type))
         ->when($request->status, fn ($q) => $q->where('status', $request->status))
         ->when($request->department_id, fn ($q) => $q->where('department_id', $request->department_id))
+        ->when($request->location_id, fn ($q) => $q->where('location_id', $request->location_id))
         ->when($request->search, function ($q) use ($request) {
             $q->where(function ($sub) use ($request) {
                 $sub->where('item_tag', 'like', "%{$request->search}%")
@@ -32,7 +33,8 @@ class FacilityItemController extends Controller
             });
         })
         ->latest()
-        ->simplePaginate(10);
+        ->simplePaginate(10)
+        ->withQueryString();
 
     $stats = [
         'total' => FacilityItem::count(),
@@ -46,10 +48,16 @@ class FacilityItemController extends Controller
         ->orderBy('due_date')
         ->paginate(10);
 
+    // Live search / filter / pagination requests: return just the stats+table+pager markup.
+    if ($request->ajax()) {
+        return view('facility-items._results', compact('items', 'stats'))->render();
+    }
+
     return view('facility-items.index', [
         'items' => $items,
         'stats' => $stats,
         'departments' => Department::all(),
+        'locations' => Location::with('building')->get(),
         'categories' => $this->categories,
         'statuses' => $this->statuses,
         'assetTypes' => $this->assetTypes,
@@ -91,6 +99,10 @@ public function create()
 
     $validated['item_tag'] = $this->generateItemTag($validated['category']);
     
+
+    if ($validated['status'] === 'missing') {
+        $validated['missing_since'] = now();
+    }
 
     $item = FacilityItem::create($validated);
     $this->generateQrCode($item);
@@ -141,7 +153,15 @@ public function create()
             'supplier_id' => 'nullable|exists:suppliers,id',
         ]);
 
+        if ($validated['status'] === 'missing' && $facilityItem->status !== 'missing') {
+            $validated['missing_since'] = now();
+        } elseif ($validated['status'] !== 'missing') {
+            $validated['missing_since'] = null;
+        }
+
         $facilityItem->update($validated);
+
+        
 
         return redirect()->route('facility-items.show', $facilityItem)->with('success', 'Facility item updated.');
     }

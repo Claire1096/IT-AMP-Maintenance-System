@@ -10,14 +10,13 @@
 
     <div class="bg-rose-100 border-b border-rose-200 px-6 py-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold text-xs">EM</div>
+            <img src="{{ asset('logo.svg') }}" alt="EM Power Beautiful Skin" class="w-8 h-8 rounded-full object-cover">
             <div class="leading-tight">
-                <div class="font-semibold text-pink-700 text-sm">EM Power Beautiful Skin</div>
+                <div class="font-semibold text-sm">E<span class="text-pink-600">M</span> Power Beautiful Skin</div>
                 <div class="text-[10px] tracking-widest text-gray-400">CORPORATION</div>
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <input type="text" placeholder="search asset ID/Employee..." class="text-xs border-gray-300 rounded-full px-4 py-1.5 w-56">
             <x-notification-bell />
             <x-account-menu />
         </div>

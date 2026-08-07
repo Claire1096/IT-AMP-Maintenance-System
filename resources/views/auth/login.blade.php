@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login — EM Power Beautiful Skin</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-rose-50 relative overflow-hidden flex items-center justify-center">
@@ -17,11 +18,9 @@
 
         {{-- Logo + name --}}
         <div class="flex flex-col items-center text-center mb-2">
-            <div class="w-14 h-14 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold text-lg mb-3">
-                EM
-            </div>
-            <h1 class="font-semibold text-pink-700 text-lg leading-tight">EM Power Beautiful Skin</h1>
-            <div class="text-[10px] tracking-widest text-gray-400">CORPORATION</div>
+            <img src="{{ asset('logo.svg') }}" alt="EM Power Beautiful Skin" class="w-20 h-20 rounded-full object-cover">
+            <h1 class="text-xl font-bold text-gray-800">E<span class="text-pink-600">M</span> Power Beautiful Skin</h1>
+            <div class="text-[10px] tracking-widest text-gray-800">CORPORATION</div>
         </div>
 
         <p class="text-center text-xs italic text-gray-400 mb-8">"Serving quality beyond the basics"</p>

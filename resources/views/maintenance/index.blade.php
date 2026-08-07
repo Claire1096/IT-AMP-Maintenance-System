@@ -47,7 +47,7 @@
                             <th class="px-4 py-3">Next Date</th>
                             <th class="px-4 py-3">Status</th>
                             <th class="px-4 py-3">Technician</th>
-                            <th class="px-4 py-3">Action</th>
+                            <th class="px-4 py-3 text-right">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-rose-50">
@@ -75,15 +75,31 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-3">{{ $schedule->technician->name ?? '—' }}</td>
-                                <td class="px-4 py-3">
-                                    @unless (auth()->user()->role === 'executive')
+                                <td class="px-4 py-3 text-right">
+                                    <div class="flex justify-end items-center gap-2">
+                                        <a href="{{ route('maintenance.show', $schedule) }}" class="px-3 py-1 border border-gray-300 text-gray-600 text-[10px] font-semibold rounded-full hover:bg-gray-50">
+                                            VIEW
+                                        </a>
+                                        <a href="{{ route('maintenance.edit', $schedule) }}" class="px-3 py-1 border border-blue-200 text-blue-600 text-[10px] font-semibold rounded-full hover:bg-blue-50">
+                                            EDIT
+                                        </a>
                                         @if (in_array($schedule->status, ['scheduled', 'overdue', 'in_progress']))
-                                            <form method="POST" action="{{ route('maintenance.complete', $schedule) }}">
+                                            <form method="POST" action="{{ route('maintenance.complete', $schedule) }}" class="inline">
                                                 @csrf
-                                                <button class="text-pink-600 hover:underline">Mark Complete</button>
+                                                <button class="px-3 py-1 bg-pink-600 text-white text-[10px] font-semibold rounded-full hover:bg-pink-700">
+                                                    MARK COMPLETE
+                                                </button>
                                             </form>
                                         @endif
-                                    @endunless
+                                        <form method="POST" action="{{ route('maintenance.destroy', $schedule) }}" class="inline"
+                                              onsubmit="return confirm('Delete this maintenance schedule? This cannot be undone.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="px-3 py-1 border border-red-200 text-red-600 text-[10px] font-semibold rounded-full hover:bg-red-50">
+                                                DELETE
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

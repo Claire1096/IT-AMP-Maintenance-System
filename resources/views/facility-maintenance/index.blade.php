@@ -10,9 +10,7 @@
         </div>
         <div class="flex gap-2">
             <a href="{{ route('facility-items.index') }}" class="px-4 py-1.5 border border-gray-300 text-gray-600 text-xs font-semibold rounded-full">&#8249; BACK TO ASSETS</a>
-            @unless (auth()->user()->role === 'executive')
                 <a href="{{ route('facility-maintenance.create') }}" class="px-4 py-1.5 bg-pink-600 text-white text-xs font-semibold rounded-full">+ SCHEDULE MAINTENANCE</a>
-            @endunless
         </div>
     </div>
 
@@ -84,21 +82,32 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-gray-500">{{ $maintenance->notes ?: '—' }}</td>
-                    <td class="px-4 py-3 text-right">
-                        <div class="flex justify-end gap-2 items-center">
-                            <a href="{{ route('facility-maintenance.show', $maintenance) }}" class="px-3 py-1 border border-gray-300 text-gray-600 text-[10px] font-semibold rounded-full hover:bg-gray-50">
-                                VIEW
-                            </a>
-                            @if ($maintenance->status !== 'done')
-                                <form method="POST" action="{{ route('facility-maintenance.complete', $maintenance) }}" class="inline">
-                                @csrf
-                                    <button type="submit" class="px-3 py-1 bg-pink-600 text-white text-[10px] font-semibold rounded-full hover:bg-pink-700">
-                                        MARK DONE
+                        <td class="px-4 py-3 text-right">
+                            <div class="flex justify-end gap-2 items-center">
+                                <a href="{{ route('facility-maintenance.show', $maintenance) }}" class="px-3 py-1 border border-gray-300 text-gray-600 text-[10px] font-semibold rounded-full hover:bg-gray-50">
+                                    VIEW
+                                </a>
+                                <a href="{{ route('facility-maintenance.edit', $maintenance) }}" class="px-3 py-1 border border-blue-200 text-blue-600 text-[10px] font-semibold rounded-full hover:bg-blue-50">
+                                    EDIT
+                                </a>
+                                @if ($maintenance->status !== 'done')
+                                    <form method="POST" action="{{ route('facility-maintenance.complete', $maintenance) }}" class="inline">
+                                        @csrf
+                                        <button type="submit" class="px-3 py-1 bg-pink-600 text-white text-[10px] font-semibold rounded-full hover:bg-pink-700">
+                                            MARK DONE
+                                        </button>
+                                    </form>
+                                @endif
+                                <form method="POST" action="{{ route('facility-maintenance.destroy', $maintenance) }}" class="inline"
+                                      onsubmit="return confirm('Delete this maintenance record? This cannot be undone.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="px-3 py-1 border border-red-200 text-red-600 text-[10px] font-semibold rounded-full hover:bg-red-50">
+                                        DELETE
                                     </button>
                                 </form>
-                            @endif
-                        </div>
-                    </td>
+                            </div>
+                        </td>
                     </tr>
                 @empty
                     <tr>

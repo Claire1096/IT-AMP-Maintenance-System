@@ -3,7 +3,7 @@
 @section('content')
 
     <div class="text-center mb-8">
-        <div class="w-14 h-14 mx-auto rounded-full bg-pink-500 flex items-center justify-center text-white font-bold text-lg mb-3">EM</div>
+        <img src="{{ asset('logo.svg') }}" alt="EM Power Beautiful Skin" class="w-20 h-20 mx-auto mb-3 rounded-full object-cover block">
         <h1 class="text-xl font-bold text-gray-800">Welcome to E<span class="text-pink-600">M</span> Power Beautiful Skin Corporation</h1>
         <p class="text-xs text-gray-400 mt-1">Executives' Personal Asset Management Tracking System</p>
     </div>

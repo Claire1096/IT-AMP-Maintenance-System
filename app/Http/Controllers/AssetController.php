@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Models\AssetAssignment;
-use App\Models\AssetCategory;
 use App\Models\AssetMovement;
 use App\Models\Department;
 use App\Models\Employee;
@@ -19,20 +18,26 @@ class AssetController extends Controller
     public function index(Request $request)
     {
         $assets = Asset::query()
-            ->with(['category', 'assignedEmployee', 'department', 'location', 'supplier'])
+            ->with(['assignedEmployee', 'department', 'location', 'supplier'])
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
-            ->when($request->category_id, fn ($q) => $q->where('category_id', $request->category_id))
             ->when($request->department_id, fn ($q) => $q->where('department_id', $request->department_id))
             ->when($request->location_id, fn ($q) => $q->where('location_id', $request->location_id))
             ->when($request->search, function ($q) use ($request) {
-                $q->where(function ($sub) use ($request) {
-                    $sub->where('asset_tag', 'like', "%{$request->search}%")
-                        ->orWhere('name', 'like', "%{$request->search}%")
-                        ->orWhere('serial_number', 'like', "%{$request->search}%");
+                $term = $request->search;
+                $q->where(function ($sub) use ($term) {
+                    $sub->where('asset_tag', 'like', "%{$term}%")
+                        ->orWhere('name', 'like', "%{$term}%")
+                        ->orWhere('category', 'like', "%{$term}%")
+                        ->orWhere('type', 'like', "%{$term}%")
+                        ->orWhere('serial_number', 'like', "%{$term}%")
+                        ->orWhere('status', 'like', "%{$term}%")
+                        ->orWhereHas('department', fn ($d) => $d->where('name', 'like', "%{$term}%"))
+                        ->orWhereHas('location', fn ($l) => $l->where('name', 'like', "%{$term}%"))
+                        ->orWhereHas('assignedEmployee', fn ($e) => $e->where('first_name', 'like', "%{$term}%")->orWhere('last_name', 'like', "%{$term}%"));
                 });
             })
             ->latest()
-            ->paginate(20);
+            ->paginate(12);
 
         $stats = [
             'total' => Asset::count(),
@@ -43,33 +48,37 @@ class AssetController extends Controller
                 ->count(),
         ];
 
+        // Live search / filter requests: return just the table+stats markup, not the full page.
+        if ($request->ajax()) {
+            return view('assets._results', compact('assets', 'stats'))->render();
+        }
+
         return view('assets.index', [
             'assets' => $assets,
             'stats' => $stats,
-            'categories' => AssetCategory::all(),
             'departments' => Department::all(),
             'locations' => Location::with('building')->get(),
         ]);
     }
 
-  public function create()
-{
-    return view('assets.create', [
-        'categories' => AssetCategory::all(),
-        'employees' => Employee::where('is_active', true)->orderBy('first_name')->get(),
-        'departments' => Department::all(),
-        'locations' => Location::with('building')->get(),
-        'suppliers' => Supplier::all(),
-        'positions' => \App\Models\Position::orderBy('department_id')->get(),
-    ]);
-}
-    
+    public function create()
+    {
+        return view('assets.create', [
+            'assetTypes' => Asset::TYPES,
+            'employees' => Employee::where('is_active', true)->orderBy('first_name')->get(),
+            'departments' => Department::all(),
+            'locations' => Location::with('building')->get(),
+            'suppliers' => Supplier::all(),
+            'positions' => \App\Models\Position::orderBy('department_id')->get(),
+        ]);
+    }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:asset_categories,id',
+            'category' => 'required|string|max:255',
+            'type' => 'nullable|string|max:255',
             'brand' => 'nullable|string|max:255',
             'model' => 'nullable|string|max:255',
             'serial_number' => 'nullable|string|max:255|unique:assets,serial_number',
@@ -83,7 +92,7 @@ class AssetController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $validated['asset_tag'] = $this->generateAssetTag($validated['category_id']);
+        $validated['asset_tag'] = $this->generateAssetTag($validated['category']);
         $validated['status'] = 'active';
 
         $asset = Asset::create($validated);
@@ -105,7 +114,7 @@ class AssetController extends Controller
     public function show(Asset $asset)
     {
         $asset->load([
-            'category', 'assignedEmployee', 'department', 'location', 'supplier',
+            'assignedEmployee', 'department', 'location', 'supplier',
             'assignments.employee', 'movements.fromLocation', 'movements.toLocation',
             'maintenanceSchedules' => fn ($q) => $q->latest('scheduled_date'),
             'repairHistories' => fn ($q) => $q->latest('reported_date'),
@@ -121,7 +130,7 @@ class AssetController extends Controller
     {
         return view('assets.edit', [
             'asset' => $asset,
-            'categories' => AssetCategory::all(),
+            'assetTypes' => Asset::TYPES,
             'employees' => Employee::where('is_active', true)->orderBy('first_name')->get(),
             'departments' => Department::all(),
             'locations' => Location::with('building')->get(),
@@ -133,6 +142,8 @@ class AssetController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'type' => 'nullable|string|max:255',
             'brand' => 'nullable|string|max:255',
             'model' => 'nullable|string|max:255',
             'serial_number' => 'nullable|string|max:255|unique:assets,serial_number,' . $asset->id,
@@ -202,17 +213,20 @@ class AssetController extends Controller
 
     // --- Helpers ---
 
-    private function generateAssetTag(int $categoryId): string
+    private function generateAssetTag(string $category): string
     {
-        $category = AssetCategory::findOrFail($categoryId);
-        $prefix = $category->prefix ?: strtoupper(substr($category->name, 0, 3));
+        $prefix = strtoupper(substr(preg_replace("/[^A-Za-z]/", "", $category), 0, 3)) ?: "AST";
         $year = now()->year;
 
-        $count = Asset::where('category_id', $categoryId)
-            ->whereYear('created_at', $year)
-            ->count() + 1;
+        do {
+            $count = Asset::withTrashed()
+                ->where("asset_tag", "like", "{$prefix}-{$year}-%")
+                ->count() + 1;
 
-        return sprintf('%s-%d-%04d', $prefix, $year, $count);
+            $tag = sprintf("%s-%d-%04d", $prefix, $year, $count);
+        } while (Asset::withTrashed()->where("asset_tag", $tag)->exists());
+
+        return $tag;
     }
 
     private function generateQrCode(Asset $asset): void
@@ -223,4 +237,3 @@ class AssetController extends Controller
         $asset->update(['qr_code_path' => $path]);
     }
 }
-
